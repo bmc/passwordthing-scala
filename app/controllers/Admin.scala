@@ -15,6 +15,7 @@ object Admin extends Controller with Secured with ControllerUtil {
   }
 
   def listUsers = withAdminUser { user => implicit request =>
+    val users = User.all
     Ok(views.html.admin.index(user))
   }
 }

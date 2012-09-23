@@ -2,12 +2,26 @@ package models
 
 import play.api.libs.Crypto
 import play.api.Logger
+import play.api.libs.json._
 
-case class User(
-  username: String,
-  encryptedPassword: String,
-  isAdmin: Boolean
-)
+case class User(username: String,
+                encryptedPassword: String,
+                isAdmin: Boolean,
+                id: Option[Int] = None) {
+
+  // Convert this user object to JSON (a JsValue, not a string). To
+  // convert this result to a JSON string, use this code:
+  //
+  //     import play.api.libs.json.Json
+  //     Json.stringify(user.toJson)
+  def toJson = Json.toJson(
+    Map(
+      "username" -> Json.toJson(username),
+      "isAdmin"  -> Json.toJson(isAdmin),
+      "id"       -> Json.toJson(id.getOrElse(-1))
+    )
+  )
+}
 
 object User {
   import anorm._
@@ -72,7 +86,8 @@ object User {
   private def decodeUser(row: SqlRow): User = {
     User(row[String]("username"),
          row[String]("encrypted_password"),
-         decodeBoolean(row[Int]("is_admin")))
+         decodeBoolean(row[Int]("is_admin")),
+         Some(row[Int]("id")))
   }
 
   private def decodeBoolean(value: Int) = if (value == 0) false else true
