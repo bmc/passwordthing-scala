@@ -1,4 +1,4 @@
-@(user: User)(content: Html)
+@(user: User, editForm: Form[models.User])(content: Html)
 
 @head = {
   <script src="@routes.Assets.at("javascripts/admin.js")"></script>
@@ -35,6 +35,7 @@
             <th>ID</th>
             <th>Username</th>
             <th>Administrator?</th>
+            <th>Actions</th>
           </tr>
           <!--
             When handling the AJAX query for the list of users, the Javascript
@@ -46,11 +47,24 @@
             <td class="field-value user-id"></td>
             <td class="field-value user-username"></td>
             <td class="field-value user-admin"></td>
+            <td>
+              <button class="btn btn-small edit-button" data-id="">
+                Edit
+              </button>
+            </td>
           </tr>
         </thead>
 
         <tbody id="user-list"></tbody>
       </table>
+
+      <table id="edit-user" class="table table-hover" style="display:none">
+        <tr>
+          <td><label>Username</label></td>
+          <td><input readonly="true" class="username" type="text" size="30"></td>
+        </tr>
+        <tr>
+          <td><label>Password</label></td>
 
     </div>
 </div>

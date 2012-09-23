@@ -1,4 +1,7 @@
 $(document).ready ->
+  editUser = (event) ->
+    event.preventDefault()
+
   $("#list-users").click ->
     url = $(this).data("url")
     $("#user-list").empty()
@@ -12,6 +15,9 @@ $(document).ready ->
         newElem.find(".user-id").append(this["id"])
         admin = if this["isAdmin"] then "Y" else "N"
         newElem.find(".user-admin").append(admin)
+        button = newElem.find(".edit-button").first()
+        button.data("id", this["id"])
+        button.click editUser
         newElem.removeAttr("id")
         $("#user-list").append(newElem)
         newElem.show()

@@ -16,8 +16,8 @@ object Auth extends Controller {
       "username" -> nonEmptyText,
       "password" -> nonEmptyText
     )
-    (User.applyNamePassword)
-    (User.unapplyNamePassword)
+    (User.applyForLogin)
+    (User.unapplyForLogin)
     verifying("Invalid user name and password", validLogin _)
   )
 
@@ -39,9 +39,9 @@ object Auth extends Controller {
       // Failure: Re-post the login form.
       BadRequest(views.html.login(theForm)),
 
-      // Success. Redirect to the main application. "c" is the context.
-      c => Redirect(routes.Application.index()).
-                    withSession("username" -> c.username)
+      // Success. Redirect to the main application.
+      user => Redirect(routes.Application.index()).
+                       withSession("username" -> user.username)
       )
   }
 

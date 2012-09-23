@@ -4,10 +4,12 @@ import play.api.libs.Crypto
 import play.api.Logger
 import play.api.libs.json._
 
-case class User(username: String,
-                encryptedPassword: String,
-                isAdmin: Boolean,
-                id: Option[Int] = None) {
+case class User(username:             String,
+                encryptedPassword:    String,
+                password:             Option[String], // Not persisted
+                passwordConfirmation: Option[String], // Not persisted
+                isAdmin:              Boolean,
+                id:                   Option[Int] = None) {
 
   // Convert this user object to JSON (a JsValue, not a string). To
   // convert this result to a JSON string, use this code:
@@ -52,7 +54,7 @@ object User {
   }
 
   def create(name: String, password: String, isAdmin: Boolean): Option[User] = {
-    val user = User(name, Crypto.sign(password), isAdmin)
+    val user = User(name, Crypto.sign(password), None, None, isAdmin)
     try {
       DB.withConnection { implicit connection =>
         SQL(
@@ -77,15 +79,34 @@ object User {
     }
   }
 
-  def applyNamePassword(name: String, password: String): User =
-    User(name, Crypto.sign(password), false)
+  def applyForEdit(name:                 String,
+                   password:             String,
+                   passwordConfirmation: String,
+                   isAdmin:              Boolean) = {
+    User(name,
+         Crypto.sign(password),
+         Some(password),
+         Some(passwordConfirmation),
+         isAdmin)
+  }
 
-  def unapplyNamePassword(user: User) =
+  def unapplyForEdit(user: User) =
+    Some((user.username, 
+          user.password.getOrElse(""),
+          user.passwordConfirmation.getOrElse(""),
+          user.isAdmin))
+
+  def applyForLogin(name: String, password: String): User =
+    User(name, Crypto.sign(password), None, None, false)
+
+  def unapplyForLogin(user: User) =
     Some((user.username, user.encryptedPassword))
 
   private def decodeUser(row: SqlRow): User = {
     User(row[String]("username"),
          row[String]("encrypted_password"),
+         None,
+         None,
          decodeBoolean(row[Int]("is_admin")),
          Some(row[Int]("id")))
   }
