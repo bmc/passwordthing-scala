@@ -4,6 +4,7 @@ import play.api._
 import play.api.mvc._
 import play.api.data.Forms._
 import play.api.data.Form
+import play.api.libs.json.Json
 
 import models.User._
 import models._
@@ -15,7 +16,6 @@ object Admin extends Controller with Secured with ControllerUtil {
   }
 
   def listUsers = withAdminUser { user => implicit request =>
-    val users = User.all
-    Ok(views.html.admin.index(user))
+    Ok(Json.toJson(User.all.map {_.toJson}))
   }
 }

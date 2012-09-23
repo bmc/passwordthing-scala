@@ -13,7 +13,8 @@
         <header>Actions</header>
         <ul id="actions">
           <li>
-            <a id="list-users" href="javascript:void(0)">List all users</a>
+            <a id="list-users" href="javascript:void(0)"
+               data-url="@routes.Admin.listUsers()">List all users</a>
           </li>
           <li>
             <a id="new-user" href="javascript:void(0)">New user</a>
@@ -24,6 +25,31 @@
 
     <div class="span9">
       @content
+
+      <!-- User display -->
+      <table id="users" class="table" style="display:none"></div>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Administrator?</th>
+          </tr>
+          <!--
+            When handling the AJAX query for the list of users, the Javascript
+            clones this element for each user, appending it to the table. This
+            template must be here, rather than the <tbody>, because the <tbody>
+            is cleared with every request.
+          -->
+          <tr id="user-template" style="display:none">
+            <td class="field-value user-id"></td>
+            <td class="field-value user-username"></td>
+            <td class="field-value user-admin"></td>
+          </tr>
+        </thead>
+
+        <tbody id="user-list"></tbody>
+      </table>
+
     </div>
 </div>
 }
