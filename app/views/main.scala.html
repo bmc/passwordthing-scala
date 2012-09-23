@@ -76,7 +76,6 @@
                   </a>
                 </li>
               }
-
               <li>
                 <a href="@routes.Auth.logout()">
                   <i class="icon-off"></i>Sign out
@@ -84,6 +83,12 @@
               </li>
             }
           </ul>
+          @user.map {u =>
+            <div id="logged-in-as">
+              <span class="prefix">Logged in as</span>
+              <span class="username">@u.username</span>
+            </div>
+          }
         </div>
       </div>
 
