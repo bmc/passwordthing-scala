@@ -62,6 +62,13 @@
                   <i class="icon-off"></i>Sign out
                 </a>
               </li>
+              @if(u.isAdmin) {
+                <li>
+                  <a href="@routes.Admin.index()">
+                    <i class="icon-wrench"></i>Admin
+                  </a>
+                </li>
+              }
             }
           </ul>
         </div>

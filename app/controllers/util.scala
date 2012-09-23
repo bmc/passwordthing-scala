@@ -35,9 +35,20 @@ trait Secured {
   def withUser(f: User => Request[Any] => Result) = withAuth {
     username => implicit request =>
 
-    // Find the user here. For now, we just create one.
-    Some(User(username, "foo")).map { user => 
-      f(user)(request)
-    }.getOrElse(onUnauthorized(request))
+    User.findByName(username) match {
+      case Left(error) =>
+        Logger.error(error)
+        onUnauthorized(request)
+      case Right(user) =>
+        f(user)(request)
+    }
+  }
+}
+
+trait ControllerUtil {
+  self: Controller with Secured =>
+
+  def myToDo(message: String = "") = withUser { user => implicit request =>
+    Ok(views.html.mytodo(message, user))
   }
 }
