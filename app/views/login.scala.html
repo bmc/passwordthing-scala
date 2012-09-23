@@ -1,0 +1,30 @@
+@(loginForm: Form[models.User])
+
+@{/* Gets the "form" helper used below. */}
+@import helper._
+
+@main("Login") {
+        
+        @form(action = routes.Auth.authenticate) {
+          @{ // Now to handle global errors. Doesn't have to be in the form.
+             loginForm.globalError.map{ error =>
+               <span class="error">{error.message}</span>
+             }
+          }
+          @inputText(
+                loginForm("username"),
+                args = 'size -> 20,
+                       '_label -> "Username",
+                       '_showConstraints -> false,
+                       'placeholder -> "your username"
+          )
+          @inputPassword(
+            loginForm("password"),
+            args = 'size -> 20,
+                   '_label -> "Password",
+                   '_showConstraints -> false,
+                   'placeholder -> "your password")
+          <button>Login</button>
+        }
+    
+}

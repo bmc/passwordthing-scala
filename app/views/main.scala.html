@@ -1,4 +1,7 @@
-@(title: String)(content: Html)
+@(title: String, user: Option[User] = None)(content: Html)
+
+@import play._
+@import play.mvc._
 
 <!DOCTYPE html>
 
@@ -38,9 +41,28 @@
         <div class="navbar-inner">
           <a class="brand">PasswordThing</a>
           <ul class="nav">
-            <li id="nav-home" class="active"><a href="/">Home</a></li>
-            <li id="nav-show-all"><a href="/sites">Show All</a></li>
-            <li id="nav-new"><a href="/site/new">New</a></li>
+            @user.map { u =>
+              <li id="nav-home" class="active">
+                <a href="@routes.Application.index()">
+                  <i class="icon-home"></i>Home
+                </a>
+              </li>
+              <li id="nav-show-all">
+                <a href="@routes.Application.sites()">
+                  <i class="icon-tasks"></i>Show All
+                </a>
+              </li>
+              <li id="nav-new">
+                <a href="@routes.Application.newSite()">
+                  <i class="icon-file"></i>New
+                </a>
+              </li>
+              <li>
+                <a href="@routes.Auth.logout()">
+                  <i class="icon-off"></i>Sign out
+                </a>
+              </li>
+            }
           </ul>
         </div>
       </div>
