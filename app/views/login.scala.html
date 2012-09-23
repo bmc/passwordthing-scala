@@ -6,35 +6,39 @@
 
 @main("Login") {
 
-  @loginForm.globalError.map{ error =>
-    <div class="alert alert-error">
-      <button type="button" class="close" data-dismiss="alert">x</button>
-      @error.message
-    </div>
-  }
+  <div class="span12">
 
-  <div id="login-form" class="well">
-    <div class="heading">Please sign in</div>
-
-    @form(action = routes.Auth.authenticate) {
-      @inputText(
-        loginForm("username"),
-        args = 'size -> 16,
-               'id -> "username",
-               '_label -> "Username",
-               '_showConstraints -> false,
-               'placeholder -> "your username"
-      )
-      @inputPassword(
-        loginForm("password"),
-        args = 'size -> 16,
-               '_label -> "Password",
-               '_showConstraints -> false,
-               'placeholder -> "your password")
-
-      <div id="buttons">
-        <button class="btn btn-primary">Login</button>
+    @loginForm.globalError.map{ error =>
+      <div class="alert alert-error">
+        <button type="button" class="close" data-dismiss="alert">x</button>
+        @error.message
       </div>
     }
+
+    <div id="login-form" class="well">
+      <div class="heading">Please sign in</div>
+
+      @form(action = routes.Auth.authenticate) {
+        @inputText(
+          loginForm("username"),
+          args = 'size -> 16,
+                 'id -> "username",
+                 '_label -> "Username",
+                 '_showConstraints -> false,
+                 'placeholder -> "your username"
+        )
+        @inputPassword(
+          loginForm("password"),
+          args = 'size -> 16,
+                 '_label -> "Password",
+                 '_showConstraints -> false,
+                 'placeholder -> "your password")
+  
+        <div id="buttons">
+          <button class="btn btn-primary">Login</button>
+        </div>
+      }
+    </div>
+
   </div>
 }

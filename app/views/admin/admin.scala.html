@@ -1,0 +1,23 @@
+@(user: User)(content: Html)
+
+@main("Admin", Some(user)) {
+  <div id="admin">
+    <div class="span3">
+      <div id="sidebar" class="well">
+        <heading>Actions</heading>
+        <ul id="actions">
+          <li>
+            <a id="list-users" href="javascript:void(0)">List all users</a>
+          </li>
+          <li>
+            <a id="new-user" href="javascript:void(0)">New user</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="span9">
+      @content
+    </div>
+</div>
+}

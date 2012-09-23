@@ -9,6 +9,11 @@
   <head>
     <title>@title</title>
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+    @user.map { u =>
+      @if(u.isAdmin) {
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/admin.css")">
+      }
+    }
     <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
 
 
@@ -36,7 +41,7 @@
     <script src="@routes.Assets.at("javascripts/navbar.js")"></script>
   </head>
   <body>
-    <div class="container">
+    <div class="container-fluid">
       <div class="navbar navbar-fixed-top navbar-inverse">
         <div class="navbar-inner">
           <a class="brand">
@@ -80,10 +85,8 @@
       </div>
 
       <div id="content">
-        <div class="row">
-          <div class="span12">
-            @content
-          </div>
+        <div class="row-fluid">
+          @content
         </div>
       </div>
     </div>

@@ -52,6 +52,7 @@ object Auth extends Controller {
           "Invalid login for user %s: %s".format(u.username, error)
         )
         false
+
       case Right(dbUser) =>
         val valid = dbUser.encryptedPassword == u.encryptedPassword
         if (!valid) Logger.error("Bad password for user %s.".format(u.username))

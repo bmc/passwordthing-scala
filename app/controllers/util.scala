@@ -13,8 +13,7 @@ trait Secured {
 
   def username(request: RequestHeader) = request.session.get(Security.username)
 
-  def onUnauthorized(request: RequestHeader) =
-    Results.Redirect(routes.Auth.login())
+  def onUnauthorized(request: RequestHeader) = Results.Forbidden
 
   // Chain this to a controller action, e.g.:
   //
@@ -41,6 +40,25 @@ trait Secured {
         onUnauthorized(request)
       case Right(user) =>
         f(user)(request)
+    }
+  }
+
+
+  // Chain this to a controller action, e.g.:
+  //
+  //    def index = withUser { user => implicit request =>
+  //      Ok(views.html.index(...))
+  //    }
+  def withAdminUser(f: User => Request[Any] => Result) = withUser {
+    user => implicit request =>
+
+    if (user.isAdmin)
+      f(user)(request)
+    else {
+      Logger.error(
+        "Non-admin user %s attempted unauthorized access.".format(user.username)
+      )
+      onUnauthorized(request)
     }
   }
 }
