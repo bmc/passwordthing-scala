@@ -1,8 +1,9 @@
 # --- !Ups
 create table user(
     id integer primary key asc,
-    username varchar(30) not null,
-    password varchar(30) not null
+    username varchar(30) not null unique,
+    encrypted_password varchar(255) not null,
+    is_admin integer not null default 0
 );
 
 create table site(
