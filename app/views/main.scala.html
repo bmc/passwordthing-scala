@@ -39,7 +39,10 @@
     <div class="container">
       <div class="navbar navbar-fixed-top navbar-inverse">
         <div class="navbar-inner">
-          <a class="brand">PasswordThing</a>
+          <a class="brand">
+            <img src="@routes.Assets.at("images/logo.png")" id="logo-image"/>
+            PasswordThing
+          </a>
           <ul class="nav">
             @user.map { u =>
               <li id="nav-home" class="active">
@@ -57,11 +60,7 @@
                   <i class="icon-file"></i>New
                 </a>
               </li>
-              <li>
-                <a href="@routes.Auth.logout()">
-                  <i class="icon-off"></i>Sign out
-                </a>
-              </li>
+
               @if(u.isAdmin) {
                 <li>
                   <a href="@routes.Admin.index()">
@@ -69,6 +68,12 @@
                   </a>
                 </li>
               }
+
+              <li>
+                <a href="@routes.Auth.logout()">
+                  <i class="icon-off"></i>Sign out
+                </a>
+              </li>
             }
           </ul>
         </div>
