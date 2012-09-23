@@ -1,10 +1,16 @@
 @(user: User)(content: Html)
 
-@main("Admin", Some(user)) {
+@head = {
+  <script src="@routes.Assets.at("javascripts/admin.js")"></script>
+}
+
+@main("Admin", additionalHead = Some(head), user = Some(user)) {
   <div id="admin">
     <div class="span3">
       <div id="sidebar" class="well">
-        <heading>Actions</heading>
+        <img src="@routes.Assets.at("images/loading.gif")"
+             id="loader" style="display:none">
+        <header>Actions</header>
         <ul id="actions">
           <li>
             <a id="list-users" href="javascript:void(0)">List all users</a>

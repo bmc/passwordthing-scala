@@ -22,18 +22,19 @@ object User {
     DB.withConnection { implicit connection =>
       val query = SQL("SELECT * FROM user WHERE username = {name}").
                   on("name" -> name)
-      query.apply().map {row =>
-        User(
-          row[String]("username"),
-          row[String]("encrypted_password"),
-          if (row[Int]("is_admin") == 0) false else true
-        )
-      }.toList match {
+      query.apply().map {decodeUser _}.toList match {
         case user :: users :: Nil => Left("Multiple users match that username!")
         case user :: Nil          => Right(user)
         case Nil                  => Left("Unknown user: \"" + name + "\"")
       }
     }
+  }
+
+  // Retrieve all users in the database, ordered by name.
+  def all: Seq[User] = {
+    DB.withConnection { implicit connection =>
+      SQL("SELECT * FROM user ORDER BY username").apply().toList
+    }.map {decodeUser _}
   }
 
   def create(name: String, password: String, isAdmin: Boolean): Option[User] = {
@@ -67,4 +68,12 @@ object User {
 
   def unapplyNamePassword(user: User) =
     Some((user.username, user.encryptedPassword))
+
+  private def decodeUser(row: SqlRow): User = {
+    User(row[String]("username"),
+         row[String]("encrypted_password"),
+         decodeBoolean(row[Int]("is_admin")))
+  }
+
+  private def decodeBoolean(value: Int) = if (value == 0) false else true
 }

@@ -1,4 +1,4 @@
-@(title: String, user: Option[User] = None)(content: Html)
+@(title: String, additionalHead: Option[Html] = None, user: Option[User] = None)(content: Html)
 
 @import play._
 @import play.mvc._
@@ -37,8 +37,11 @@
     <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-tooltip.min.js")"></script>
     <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-transition.min.js")"></script>
     <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-typeahead.min.js")"></script>
-
     <script src="@routes.Assets.at("javascripts/navbar.js")"></script>
+
+    @additionalHead.map {html =>
+      @html
+    }
   </head>
   <body>
     <div class="container-fluid">
