@@ -2,8 +2,9 @@ package controllers
 
 import play.api._
 import play.api.mvc._
+import play.api.data._
 import play.api.data.Forms._
-import play.api.data.Form
+import play.api.data.validation.Constraints._
 import play.api.libs.Crypto
 
 import models.User._
@@ -12,8 +13,8 @@ import models._
 object Auth extends Controller {
   val loginForm = Form(
     mapping(
-      "username" -> nonEmptyText(minLength=3),
-      "password" -> nonEmptyText(minLength=8)
+      "username" -> nonEmptyText,
+      "password" -> nonEmptyText
     )
     (User.applyNamePassword)
     (User.unapplyNamePassword)

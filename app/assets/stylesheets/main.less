@@ -1,5 +1,23 @@
 @import "bootstrap/_variables";
 
+// LESS mixin: Inline form rules. Assumes Twitter Bootstrap helper has
+// been hauled into the template.
+.inline-form () {
+  label {
+    width: 20% !important;
+    display: inline-block;
+    text-align: right;
+  }
+
+  .input {
+    display: inline-block;
+
+    .help-inline {
+      color: red;
+    }
+  }
+}
+
 @font: Helvetica, Arial, sans-serif;
 
 body {
@@ -11,6 +29,34 @@ body {
     margin-left: 10px !important;
   }
 }
+
 #content {
   margin-top: @navbarHeight + 10px;
+
+  #login-form {
+    // NOTE: Assumes "@import helper.twitterBootstrap._" in the template
+    width: auto;
+    max-width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+
+    .inline-form;
+
+    .heading {
+      color: darken(@wellBackground, 30%);
+      font-size: @baseFontSize + 5px;
+      font-weight: bold;
+      width: 100% !important;
+      text-align: right;
+      margin-bottom: 20px;
+    }
+
+    #buttons {
+      width: 15%;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 10px;
+    }
+
+  }
 }
