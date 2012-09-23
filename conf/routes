@@ -9,7 +9,7 @@ GET     /                           controllers.Application.index
 GET     /sites                      controllers.Application.sites
 GET     /site/new                   controllers.Application.newSite
 
-POST    /login                      controllers.Auth.authenticate
+POST    /sign-in                    controllers.Auth.authenticate
 GET     /login                      controllers.Auth.login
 GET     /logout                     controllers.Auth.logout
 
