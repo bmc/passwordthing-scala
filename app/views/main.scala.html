@@ -2,14 +2,50 @@
 
 <!DOCTYPE html>
 
-<html>
-    <head>
-        <title>@title</title>
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
-        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
-        <script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
-    </head>
-    <body>
-        @content
-    </body>
+<html lang="en">
+  <head>
+    <title>@title</title>
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+
+
+    <!--
+        Twitter Bootstrap integration. Adapted from
+        https://github.com/playframework/Play20/wiki/Tips
+    -->
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")" />
+
+    <script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-affix.min.js")"></script>
+    <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-alert.min.js")"></script>
+    <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-button.min.js")"></script>
+    <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-carousel.min.js")"></script>
+    <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-collapse.min.js")"></script>
+    <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-dropdown.min.js")"></script>
+    <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-modal.min.js")"></script>
+    <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-popover.min.js")"></script>
+    <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-scrollspy.min.js")"></script>
+    <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-tab.min.js")"></script>
+    <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-tooltip.min.js")"></script>
+    <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-transition.min.js")"></script>
+    <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-typeahead.min.js")"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="navbar">
+        <div class="navbar-inner">
+          <a class="brand">PasswordThing</a>
+          <ul class="nav">
+            <li class="active"><a href="/">Home</a></li>
+            <li><a href="/">New</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span12">
+          @content
+        </div>
+      </div>
+    </div>
+  </body>
 </html>
