@@ -4,6 +4,7 @@ $(document).ready ->
     $("#user-list").empty()
 
     handleResponse = (data) ->
+      $("#loader").hide()
       array = eval(data)
       $.each(array, (i) ->
         newElem = $("#user-template").clone()
@@ -17,6 +18,8 @@ $(document).ready ->
       )
       $("#users").show()
 
+    $("#users").hide()
+    $("#loader").show()
     $.post(url, null, handleResponse, "json")
     false
 
