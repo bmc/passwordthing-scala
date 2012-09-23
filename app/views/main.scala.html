@@ -29,21 +29,27 @@
     <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-tooltip.min.js")"></script>
     <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-transition.min.js")"></script>
     <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-typeahead.min.js")"></script>
+
+    <script src="@routes.Assets.at("javascripts/navbar.js")"></script>
   </head>
   <body>
     <div class="container">
-      <div class="navbar">
+      <div class="navbar navbar-fixed-top navbar-inverse">
         <div class="navbar-inner">
           <a class="brand">PasswordThing</a>
           <ul class="nav">
-            <li class="active"><a href="/">Home</a></li>
-            <li><a href="/">New</a></li>
+            <li id="nav-home" class="active"><a href="/">Home</a></li>
+            <li id="nav-show-all"><a href="/sites">Show All</a></li>
+            <li id="nav-new"><a href="/site/new">New</a></li>
           </ul>
         </div>
       </div>
-      <div class="row">
-        <div class="span12">
-          @content
+
+      <div id="content">
+        <div class="row">
+          <div class="span12">
+            @content
+          </div>
         </div>
       </div>
     </div>
