@@ -24,6 +24,12 @@ body {
   font-family: @font;
 }
 
+.alert {
+  max-width: 50% !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .navbar {
   .brand {
     margin-left: 10px !important;
@@ -34,11 +40,12 @@ body {
   margin-top: @navbarHeight + 10px;
 
   #login-form {
-    // NOTE: Assumes "@import helper.twitterBootstrap._" in the template
+
     width: auto;
     max-width: 50%;
     margin-left: auto;
     margin-right: auto;
+    margin-top: 20px;
 
     .inline-form;
 

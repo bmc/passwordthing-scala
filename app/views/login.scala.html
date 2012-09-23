@@ -5,15 +5,18 @@
 @import helper.twitterBootstrap._
 
 @main("Login") {
+
+  @loginForm.globalError.map{ error =>
+    <div class="alert alert-error">
+      <button type="button" class="close" data-dismiss="alert">x</button>
+      @error.message
+    </div>
+  }
+
   <div id="login-form" class="well">
     <div class="heading">Please sign in</div>
 
     @form(action = routes.Auth.authenticate) {
-      @{ // Now to handle global errors. Doesn't have to be in the form.
-         loginForm.globalError.map{ error =>
-           <span class="error">{error.message}</span>
-         }
-      }
       @inputText(
         loginForm("username"),
         args = 'size -> 16,
