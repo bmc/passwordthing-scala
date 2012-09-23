@@ -6,7 +6,7 @@ import play.api.Logger
 case class User(
   username: String,
   encryptedPassword: String,
-  isAdmin: Boolean = false
+  isAdmin: Boolean
 )
 
 object User {
@@ -63,7 +63,7 @@ object User {
   }
 
   def applyNamePassword(name: String, password: String): User =
-    User(name, Crypto.sign(password))
+    User(name, Crypto.sign(password), false)
 
   def unapplyNamePassword(user: User) =
     Some((user.username, user.encryptedPassword))
