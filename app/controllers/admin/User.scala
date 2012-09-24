@@ -36,7 +36,7 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
   // ----------------------------------------------------------------------
 
   def listUsers = withAdminUser { user => implicit request =>
-    Ok(Json.toJson(User.all.map {_.toJson}))
+    Ok(userJson(User.all, Some("test")))
   }
 
   private val editUserForm = Form(
@@ -163,12 +163,28 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
     * Delete a user by ID.
     */
   def deleteUser(id: Long) = withAdminUser { currentUser => implicit request =>
-    Ok(Json.toJson(User.all.map {_.toJson}))
+    User.delete(id) match {
+      case Left(error) => Ok(userJson(User.all, Some(error)))
+      case Right(bool) => Ok(userJson(User.all))
+    }
   }
 
   // ----------------------------------------------------------------------
   // Private methods
   // ----------------------------------------------------------------------
+
+  def userJson(users: Seq[User], errorMessage: Option[String] = None) = {
+    val usersMap = Json.toJson(users.map {_.toJson})
+    Json.stringify(
+      Json.toJson(
+        errorMessage.map(e =>
+          Map("error" -> Json.toJson(e), "users" -> usersMap)
+        ).getOrElse(
+          Map("users" -> usersMap)
+        )
+      )
+    )
+  }
 
   private def validPassword(password: String) = {
     ValidPassword.findFirstIn(password).map {s =>

@@ -35,13 +35,15 @@ object User {
     * the user.
     */
   def findByName(name: String): Either[String, User] = {
-    DB.withConnection { implicit connection =>
-      val query = SQL("SELECT * FROM user WHERE username = {name}").
-                  on("name" -> name)
-      query.apply().map {decodeUser _}.toList match {
-        case user :: users :: Nil => Left("(BUG) Multiple users match username!")
-        case user :: Nil          => Right(user)
-        case Nil                  => Left("Unknown user: \"" + name + "\"")
+    executeSQL {
+      DB.withConnection { implicit connection =>
+        val query = SQL("SELECT * FROM user WHERE username = {name}").
+        on("name" -> name)
+        query.apply().map {decodeUser _}.toList match {
+          case user :: users :: Nil => Left("(BUG) Multiple users match username!")
+          case (user:User) :: Nil   => Right(user)
+          case Nil                  => Left("Unknown user: \"" + name + "\"")
+        }
       }
     }
   }
@@ -70,7 +72,7 @@ object User {
              isAdmin: Boolean): Either[String, User] = {
 
     val user = User(name, encrypt(password), None, None, isAdmin)
-    try {
+    executeSQL {
       DB.withConnection { implicit connection =>
         SQL(
           """
@@ -82,25 +84,18 @@ object User {
           "pw"    -> user.encryptedPassword,
           "admin" -> encodeBoolean(user.isAdmin)
         ).executeInsert()
+
+        // Reload, to get the ID.
+        findByName(name) match {
+          case Left(error) =>
+            val msg = "Couldn't reload user after save: %s".format(error)
+            Logger.error(msg)
+            Left(msg)
+
+          case Right(user) =>
+            Right(user)
+        }
       }
-
-      // Reload, to get the ID.
-      findByName(name) match {
-        case Left(error) =>
-          val msg = "Couldn't reload user after save: %s".format(error)
-          Logger.error(msg)
-          Left(msg)
-
-        case Right(user) =>
-          Right(user)
-      }
-    }
-
-    catch {
-      case e: java.sql.SQLException =>
-        val msg = "Failed to create user: %s".format(e.getMessage)
-        Logger.error(msg)
-        Left(msg)
     }
   }
 
@@ -130,21 +125,17 @@ object User {
       )
     )
 
-    try {
+    executeSQL {
       DB.withConnection { implicit connection =>
         sql.executeUpdate()
         Right(true)
       }
     }
+  }
 
-    catch {
-      case e: java.sql.SQLException =>
-        val msg = "Failed to update user with ID %d: %s".format(
-          user.id.get, e.getMessage
-        )
-        Logger.error(msg)
-        Left(msg)
-    }
+  def delete(id: Long): Either[String, Boolean] = {
+    // SQL("DELETE FROM user WHERE id = {id}").on("id" -> id)
+    Left("Not deleted")
   }
 
   def applyForCreate(name:                 String,
@@ -188,6 +179,23 @@ object User {
 
   def unapplyForLogin(user: User) =
     Some((user.username, user.encryptedPassword))
+
+  // ----------------------------------------------------------------------
+  // Private methods
+  // ----------------------------------------------------------------------
+
+  private def executeSQL[T](code: => Either[String,T]): Either[String, T] = {
+    try {
+      code
+    }
+
+    catch {
+      case e: java.sql.SQLException =>
+        val msg = "SQL failed: %s".format(e.getMessage)
+        Logger.error(msg)
+        Left(msg)
+    }
+  }
 
   private def decodeUser(row: SqlRow): User = {
     User(row[String]("username"),
