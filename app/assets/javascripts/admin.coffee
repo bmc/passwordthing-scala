@@ -30,7 +30,7 @@ $(document).ready ->
 
   deleteUser = (event) ->
     event.preventDefault()
-    url = $(this).data("url")
+    url = $(this).attr("href")
 
     handleDeleteResponse = (data) ->
       $("#loader").hide()

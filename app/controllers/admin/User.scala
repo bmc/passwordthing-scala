@@ -36,7 +36,7 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
   // ----------------------------------------------------------------------
 
   def listUsers = withAdminUser { user => implicit request =>
-    Ok(userJson(User.all, Some("test")))
+    Ok(userJson(User.all))
   }
 
   private val editUserForm = Form(

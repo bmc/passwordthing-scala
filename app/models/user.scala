@@ -37,8 +37,11 @@ object User {
   def findByName(name: String): Either[String, User] = {
     executeSQL {
       DB.withConnection { implicit connection =>
-        val query = SQL("SELECT * FROM user WHERE username = {name}").
-        on("name" -> name)
+        val query = SQL(
+          "SELECT * FROM user WHERE username = {name}"
+        ).on("name" -> name)
+        Logger.debug(sqlToString(query))
+
         query.apply().map {decodeUser _}.toList match {
           case user :: users :: Nil => Left("(BUG) Multiple users match username!")
           case (user:User) :: Nil   => Right(user)
@@ -51,6 +54,7 @@ object User {
   def findByID(id: Long): Either[String, User] = {
     DB.withConnection { implicit connection =>
       val query = SQL("SELECT * FROM user WHERE id = {id}").on("id" -> id)
+      Logger.debug(sqlToString(query))
 
       query.apply().map {decodeUser _}.toList match {
         case user :: users :: Nil => Left("(BUG) Multiple users match that ID!")
@@ -63,7 +67,9 @@ object User {
   // Retrieve all users in the database, ordered by name.
   def all: Seq[User] = {
     DB.withConnection { implicit connection =>
-      SQL("SELECT * FROM user ORDER BY username").apply().toList
+      val sql = SQL("SELECT * FROM user ORDER BY username")
+      Logger.debug(sqlToString(sql))
+      sql.apply().toList
     }.map {decodeUser _}
   }
 
@@ -74,7 +80,7 @@ object User {
     val user = User(name, encrypt(password), None, None, isAdmin)
     executeSQL {
       DB.withConnection { implicit connection =>
-        SQL(
+        val sql = SQL(
           """
           INSERT INTO user(username, encrypted_password, is_admin)
           VALUES({name}, {pw}, {admin})
@@ -83,7 +89,10 @@ object User {
           "name"  -> user.username,
           "pw"    -> user.encryptedPassword,
           "admin" -> encodeBoolean(user.isAdmin)
-        ).executeInsert()
+        )
+
+        Logger.debug(sqlToString(sql))
+        sql.executeInsert()
 
         // Reload, to get the ID.
         findByName(name) match {
@@ -127,6 +136,7 @@ object User {
 
     executeSQL {
       DB.withConnection { implicit connection =>
+        Logger.debug(sqlToString(sql))
         sql.executeUpdate()
         Right(true)
       }
@@ -134,8 +144,14 @@ object User {
   }
 
   def delete(id: Long): Either[String, Boolean] = {
-    // SQL("DELETE FROM user WHERE id = {id}").on("id" -> id)
-    Left("Not deleted")
+    executeSQL {
+      DB.withConnection { implicit connection =>
+        val sql = SQL("DELETE FROM user WHERE id = {id}").on("id" -> id)
+        Logger.debug(sqlToString(sql))
+        sql.executeUpdate()
+        Right(true)
+      }
+    }
   }
 
   def applyForCreate(name:                 String,
@@ -195,6 +211,13 @@ object User {
         Logger.error(msg)
         Left(msg)
     }
+  }
+
+  // More readable...
+  def sqlToString(sql: SimpleSql[Row]) = {
+    sql.sql.query + " -> [" + 
+    sql.params.map {t => t._1 + "=" + t._2.aValue}.mkString(", ") +
+    "]"
   }
 
   private def decodeUser(row: SqlRow): User = {
