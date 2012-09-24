@@ -159,6 +159,13 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
     )
   }
 
+  /**
+    * Delete a user by ID.
+    */
+  def deleteUser(id: Long) = withAdminUser { currentUser => implicit request =>
+    Ok(Json.toJson(User.all.map {_.toJson}))
+  }
+
   // ----------------------------------------------------------------------
   // Private methods
   // ----------------------------------------------------------------------

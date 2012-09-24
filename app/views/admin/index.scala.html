@@ -49,9 +49,14 @@
             <td class="field-value user-username"></td>
             <td class="field-value user-admin"></td>
             <td>
-              <a class="btn btn-small edit-button"
+              <a class="btn btn-small edit-user-button action-button"
                  href="@adminRoutes.UserAdmin.editUser(-1)"> 
                 Edit
+              </a>
+              <a class="btn btn-small delete-user-button action-button"
+                 data-url="@adminRoutes.UserAdmin.deleteUser(-1)"
+                 href="javascript:void(0)">
+                Delete
               </a>
             </td>
           </tr>

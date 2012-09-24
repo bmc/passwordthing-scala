@@ -1,4 +1,14 @@
 $(document).ready ->
+
+  deleteUser = (event) ->
+    event.preventDefault()
+    url = $(this).data("url")
+
+    confirmed = ->
+      alert "Would delete user here: #{url}"
+
+    window.confirm("Really delete the user?", confirmed)
+
   $("#list-users").click ->
     url = $(this).data("url")
     $("#user-list").empty()
@@ -13,9 +23,16 @@ $(document).ready ->
         newElem.find(".user-id").append(id)
         admin = if this["isAdmin"] then "Y" else "N"
         newElem.find(".user-admin").append(admin)
-        button = newElem.find(".edit-button").first()
-        button.attr("href", button.attr("href").replace("-1", id))
-        newElem.removeAttr("id")
+
+        # Edit the URL for the action buttons, replacing the -1 placeholder
+        # with the ID of this user.
+        newElem.find(".action-button").each (i) ->
+          $(this).attr("href", $(this).attr("href").replace("-1", id))
+          $(this).removeAttr("id")
+
+        # Wire up the newly created delete buttons, but not the template one.
+        newElem.find(".delete-user-button").click deleteUser
+
         $("#user-list").append(newElem)
         newElem.show()
       )
