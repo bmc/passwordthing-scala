@@ -25,7 +25,7 @@ case class User(username:             String,
   )
 }
 
-object User {
+object User extends ModelUtil {
   import anorm._
   import play.api.db.DB
   import play.api.Play.current
@@ -35,18 +35,15 @@ object User {
     * the user.
     */
   def findByName(name: String): Either[String, User] = {
-    executeSQL {
-      DB.withConnection { implicit connection =>
-        val query = SQL(
-          "SELECT * FROM user WHERE username = {name}"
-        ).on("name" -> name)
-        Logger.debug(sqlToString(query))
+    val query = SQL(
+       "SELECT * FROM user WHERE username = {name}"
+    ).on("name" -> name)
+    executeQuery(query) { results =>
 
-        query.apply().map {decodeUser _}.toList match {
-          case user :: users :: Nil => Left("(BUG) Multiple users match username!")
-          case (user:User) :: Nil   => Right(user)
-          case Nil                  => Left("Unknown user: \"" + name + "\"")
-        }
+      results.map {decodeUser _}.toList match {
+        case user :: users :: Nil => Left("(BUG) Multiple users match username!")
+        case (user:User) :: Nil   => Right(user)
+        case Nil                  => Left("Unknown user: \"" + name + "\"")
       }
     }
   }
@@ -65,12 +62,10 @@ object User {
   }
 
   // Retrieve all users in the database, ordered by name.
-  def all: Seq[User] = {
-    DB.withConnection { implicit connection =>
-      val sql = SQL("SELECT * FROM user ORDER BY username")
-      Logger.debug(sqlToString(sql))
-      sql.apply().toList
-    }.map {decodeUser _}
+  def all: Either[String, Seq[User]] = {
+    executeQuery(SQL("SELECT * FROM user ORDER BY username")) { results =>
+      Right(results.toList.map {decodeUser _})
+    }
   }
 
   def create(name: String,
@@ -154,47 +149,8 @@ object User {
     }
   }
 
-  def applyForCreate(name:                 String,
-                     password:             String,
-                     passwordConfirmation: String,
-                     isAdmin:              Boolean) =
-    User(name,
-         encrypt(password),
-         Some(password),
-         Some(passwordConfirmation),
-         isAdmin)
-
-  def unapplyForCreate(user: User) =
-    Some((user.username, 
-          user.password.getOrElse(""),
-          user.passwordConfirmation.getOrElse(""),
-          user.isAdmin))
-
-  def applyForEdit(name:                 String,
-                   password:             Option[String],
-                   passwordConfirmation: Option[String],
-                   isAdmin:              Boolean,
-                   id:                   Long) = {
-    User(name,
-         password.map {pw => encrypt(pw)}.getOrElse(""),
-         password,
-         passwordConfirmation,
-         isAdmin,
-         Some(id))
-  }
-
-  def unapplyForEdit(user: User) =
-    Some((user.username, 
-          user.password,
-          user.passwordConfirmation,
-          user.isAdmin,
-          user.id.getOrElse(0.toLong)))
-
-  def applyForLogin(name: String, password: String): User =
-    User(name, encrypt(password), None, None, false)
-
-  def unapplyForLogin(user: User) =
-    Some((user.username, user.encryptedPassword))
+  // Encrypt a password.
+  def encrypt(password: String) = Crypto.sign(password)
 
   // ----------------------------------------------------------------------
   // Private methods
@@ -213,14 +169,7 @@ object User {
     }
   }
 
-  // More readable...
-  def sqlToString(sql: SimpleSql[Row]) = {
-    sql.sql.query + " -> [" + 
-    sql.params.map {t => t._1 + "=" + t._2.aValue}.mkString(", ") +
-    "]"
-  }
-
-  private def decodeUser(row: SqlRow): User = {
+  private def decodeUser(row: Row): User = {
     User(row[String]("username"),
          row[String]("encrypted_password"),
          None,
@@ -228,10 +177,4 @@ object User {
          decodeBoolean(row[Int]("is_admin")),
          Some(row[Int]("id")))
   }
-
-  private def decodeBoolean(value: Int) = if (value == 0) false else true
-
-  private def encodeBoolean(value: Boolean) = if (value) 1 else 0
-
-  private def encrypt(password: String) = Crypto.sign(password)
 }

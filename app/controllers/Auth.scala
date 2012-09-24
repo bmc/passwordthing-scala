@@ -14,13 +14,18 @@ import controllers._
 import controllers.util._
 
 object Auth extends Controller {
+
+  // ----------------------------------------------------------------------
+  // Actions
+  // ----------------------------------------------------------------------
+
   val loginForm = Form(
     mapping(
       "username" -> nonEmptyText,
       "password" -> nonEmptyText
     )
-    (User.applyForLogin)
-    (User.unapplyForLogin)
+    (applyForLogin)
+    (unapplyForLogin)
     verifying("Invalid user name and password", validLogin _)
   )
 
@@ -47,6 +52,16 @@ object Auth extends Controller {
                        withSession("username" -> user.username)
       )
   }
+
+  // ----------------------------------------------------------------------
+  // Private methods
+  // ----------------------------------------------------------------------
+
+  private def applyForLogin(name: String, password: String): User =
+    User(name, encrypt(password), None, None, false)
+
+  private def unapplyForLogin(user: User) =
+    Some((user.username, user.encryptedPassword))
 
   private def validLogin(u: User): Boolean = {
     User.findByName(u.username) match {

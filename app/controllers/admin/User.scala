@@ -36,7 +36,10 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
   // ----------------------------------------------------------------------
 
   def listUsers = withAdminUser { user => implicit request =>
-    Ok(userJson(User.all))
+    User.all match {
+      case Left(error)  => Ok(userJson(Nil, Some(error)))
+      case Right(users) => Ok(userJson(users))
+    }
   }
 
   private val editUserForm = Form(
@@ -49,8 +52,8 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
       "isAdmin"               -> boolean,
       "id"                    -> longNumber
     )
-    (User.applyForEdit)
-    (User.unapplyForEdit)
+    (applyForEdit)
+    (unapplyForEdit)
     verifying("Passwords don't match.", passwordsMatch _)
   )
 
@@ -119,8 +122,8 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
       "password_confirmation" -> text.verifying(PasswordError, validPassword _),
       "isAdmin"               -> boolean
     )
-    (User.applyForCreate)
-    (User.unapplyForCreate)
+    (applyForCreate)
+    (unapplyForCreate)
     verifying("Passwords don't match.", passwordsMatch _)
   )
 
@@ -164,8 +167,12 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
     */
   def deleteUser(id: Long) = withAdminUser { currentUser => implicit request =>
     User.delete(id) match {
-      case Left(error) => Ok(userJson(User.all, Some(error)))
-      case Right(bool) => Ok(userJson(User.all))
+      case Left(error) => Ok(userJson(Nil, Some(error)))
+      case Right(bool) =>
+        User.all match {
+          case Left(error)  => Ok(userJson(Nil, Some(error)))
+          case Right(users) => Ok(userJson(users))
+        }
     }
   }
 
@@ -173,7 +180,43 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
   // Private methods
   // ----------------------------------------------------------------------
 
-  def userJson(users: Seq[User], errorMessage: Option[String] = None) = {
+  private def applyForCreate(name:                 String,
+                             password:             String,
+                             passwordConfirmation: String,
+                             isAdmin:              Boolean) =
+    User(name,
+         User.encrypt(password),
+         Some(password),
+         Some(passwordConfirmation),
+         isAdmin)
+
+  private def unapplyForCreate(user: User) =
+    Some((user.username, 
+          user.password.getOrElse(""),
+          user.passwordConfirmation.getOrElse(""),
+          user.isAdmin))
+
+  private def applyForEdit(name:                 String,
+                           password:             Option[String],
+                           passwordConfirmation: Option[String],
+                           isAdmin:              Boolean,
+                           id:                   Long) = {
+    User(name,
+         password.map {pw => User.encrypt(pw)}.getOrElse(""),
+         password,
+         passwordConfirmation,
+         isAdmin,
+         Some(id))
+  }
+
+  private def unapplyForEdit(user: User) =
+    Some((user.username, 
+          user.password,
+          user.passwordConfirmation,
+          user.isAdmin,
+          user.id.getOrElse(0.toLong)))
+
+  private def userJson(users: Seq[User], errorMessage: Option[String] = None) = {
     val usersMap = Json.toJson(users.map {_.toJson})
     Json.stringify(
       Json.toJson(

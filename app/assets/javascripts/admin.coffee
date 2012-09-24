@@ -7,22 +7,36 @@ $(document).ready ->
       window.flash("error", data.error)
 
     $.each(users, (i) ->
-      id = this["id"]
+      userID = this["id"]
       newElem = $("#user-template").clone()
       newElem.find(".user-username").append(this["username"])
-      newElem.find(".user-id").append(id)
+      newElem.find(".user-id").append(userID)
       admin = if this["isAdmin"] then "Y" else "N"
       newElem.find(".user-admin").append(admin)
 
       # Edit the URL for the action buttons, replacing the -1 placeholder
       # with the ID of this user.
       newElem.find(".action-button").each (i) ->
-        $(this).attr("href", $(this).attr("href").replace("-1", id))
+        $(this).attr("href", $(this).attr("href").replace("-1", userID))
         $(this).removeAttr("id")
 
       # Wire up the newly created delete buttons, but not the template one.
-      newElem.find(".delete-user-button").click deleteUser
+      currentUserID = $("#current-user").data("id")
+      deleteButton = newElem.find(".delete-user-button")
+      if userID is currentUserID
+        # You can't delete yourself.
+        deleteButton.popover(
+          title: "<b>Forbidden</b>"
+          content: "You cannot delete yourself."
+          trigger: "hover"
+          placement: 'bottom'
+        )
+        deleteButton.attr("disabled", "disabled")
+        deleteButton.attr("href", "javascript:void(0)")
+      else
+        deleteButton.click deleteUser
 
+      console.log "Show"
       $("#user-list").append(newElem)
       newElem.show()
     )
