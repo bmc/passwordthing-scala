@@ -77,7 +77,7 @@ object User {
         ).on(
           "name"  -> user.username,
           "pw"    -> user.encryptedPassword,
-          "admin" -> (if (user.isAdmin) 1 else 0)
+          "admin" -> encodeBoolean(user.isAdmin)
         ).executeInsert()
       }
 
@@ -92,28 +92,40 @@ object User {
   }
 
   def update(user: User): Either[String, Boolean] = {
-    val userToSave = user.password.map { pw =>
-      User(user.username,
-           encrypt(pw),
-           Some(pw),
-           Some(pw),
-           user.isAdmin,
-           user.id)
-    }.getOrElse(user)
+    // flatMap() unpacks an Option, but expects one back. Thus, it's a
+    // simply way to conditionally convert a Some("") into a None.
+    val sql = user.password.flatMap { pw =>
+      if (pw == "") None else Some(pw)
+    }.map { pw =>
+      // Within this block, we know we actually have a password.
+      SQL("""|UPDATE user
+             |SET name = {name}, encrypted_password = {pw}, is_admin = {admin}
+             |WHERE id = {id}""".stripMargin).
+      on("name"  -> user.username,
+         "pw"    -> encrypt(pw),
+         "admin" -> encodeBoolean(user.isAdmin),
+         "id"    -> user.id.get
+      )
+    }.getOrElse(
+      // Within this block, we know we don't.
+      SQL("""|UPDATE user SET username = {name}, is_admin = {admin}
+             |WHERE id = {id}""".stripMargin).
+      on("name"  -> user.username,
+         "admin" -> encodeBoolean(user.isAdmin),
+         "id"    -> user.id.get
+      )
+    )
 
-    id = userToSave.id.get // Must be there.
     try {
       DB.withConnection { implicit connection =>
-        val sql = user.password match {
-          case None =>
-            SQL("UPDATE user SET name = {name}, is_admin ")
-        }
+        sql.executeUpdate()
+        Right(true)
       }
     }
 
     catch {
-      case e: java.sql.Exception =>
-        msg = "Failed to update user with ID %s: %d".format(
+      case e: java.sql.SQLException =>
+        val msg = "Failed to update user with ID %d: %s".format(
           user.id.get, e.getMessage
         )
         Logger.error(msg)
@@ -121,22 +133,39 @@ object User {
     }
   }
 
-  def applyForEdit(name:                 String,
-                   password:             String,
-                   passwordConfirmation: String,
-                   isAdmin:              Boolean,
-                   id:                   Long) = {
+  def applyForCreate(name:                 String,
+                     password:             String,
+                     passwordConfirmation: String,
+                     isAdmin:              Boolean) =
     User(name,
          encrypt(password),
          Some(password),
          Some(passwordConfirmation),
          isAdmin)
+
+  def unapplyForCreate(user: User) =
+    Some((user.username, 
+          user.password.getOrElse(""),
+          user.passwordConfirmation.getOrElse(""),
+          user.isAdmin))
+
+  def applyForEdit(name:                 String,
+                   password:             Option[String],
+                   passwordConfirmation: Option[String],
+                   isAdmin:              Boolean,
+                   id:                   Long) = {
+    User(name,
+         password.map {pw => encrypt(pw)}.getOrElse(""),
+         password,
+         passwordConfirmation,
+         isAdmin,
+         Some(id))
   }
 
   def unapplyForEdit(user: User) =
     Some((user.username, 
-          user.password.getOrElse(""),
-          user.passwordConfirmation.getOrElse(""),
+          user.password,
+          user.passwordConfirmation,
           user.isAdmin,
           user.id.getOrElse(0.toLong)))
 
@@ -156,6 +185,8 @@ object User {
   }
 
   private def decodeBoolean(value: Int) = if (value == 0) false else true
+
+  private def encodeBoolean(value: Boolean) = if (value) 1 else 0
 
   private def encrypt(password: String) = Crypto.sign(password)
 }

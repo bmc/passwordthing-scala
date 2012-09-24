@@ -1,0 +1,60 @@
+
+// LESS mixin: Inline form rules. Assumes Twitter Bootstrap helper has
+// been hauled into the template.
+.inline-form () {
+  form {
+    text-align: left;
+
+    label {
+      width: 20% !important;
+      display: inline-block;
+      text-align: right;
+      color: black;
+    }
+
+    .input {
+      display: inline-block;
+
+      .help-inline {
+        color: red;
+        font-weight: normal;
+        font-size: @baseFontSize - 2px;
+      }
+
+      .help-block {
+        display: none;
+      }
+    }
+
+    .clearfix.error {
+      input {
+        border-color: #ffaaaa;
+      }
+    }
+
+    .error-icon {
+      font-size: 16px !important;
+    }
+  }
+}
+
+.heading-styles () {
+  color: darken(@wellBackground, 30%);
+  font-size: @baseFontSize + 5px;
+  font-weight: bold;
+  width: 100% !important;
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.centered (@width) {
+  width: @width !important;
+  max-width: @width !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.form-button-bar (@width) {
+  margin-top: 10px;
+  .centered (@width);
+}

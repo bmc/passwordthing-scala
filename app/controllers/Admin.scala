@@ -13,17 +13,40 @@ import models._
 
 object Admin extends Controller with Secured with ControllerUtil {
 
+  val MinUsernameLength = 3
+  val MinPasswordLength = 8
+  val MaxPasswordLength = 32
+  val PasswordError = 
+    """|Passwords must be between %d and %d characters and must have at
+       |least one letter, one number, and one punctuation character.""".
+    stripMargin.format(MinPasswordLength, MaxPasswordLength)
+
+
   val editUserForm = Form(
     mapping(
-      "username"              -> nonEmptyText(minLength=3).
-                                 verifying("User already exists", uniqueUser _),
-      "password"              -> text.verifying(validPassword _),
-      "password_confirmation" -> text.verifying(validPassword _),
-      "isAdmin"               -> checked("Admin"),
+      "username"              -> nonEmptyText(minLength=MinUsernameLength),
+      "password"              -> optional(text.verifying(PasswordError, validPassword _)),
+      "password_confirmation" -> optional(text.verifying(PasswordError, validPassword _)),
+      "isAdmin"               -> boolean,
       "id"                    -> longNumber
     )
     (User.applyForEdit)
     (User.unapplyForEdit)
+    verifying("Passwords don't match.", { user =>
+      user.password.getOrElse("") == user.passwordConfirmation.getOrElse("")
+    })
+  )
+
+  val newUserForm = Form(
+    mapping(
+      "username"              -> nonEmptyText(minLength=MinUsernameLength).
+                                 verifying("User already exists", uniqueUser _),
+      "password"              -> text.verifying(PasswordError, validPassword _),
+      "password_confirmation" -> text.verifying(PasswordError, validPassword _),
+      "isAdmin"               -> boolean
+    )
+    (User.applyForCreate)
+    (User.unapplyForCreate)
     verifying("Passwords don't match.", { user =>
       user.password == user.passwordConfirmation
     })
@@ -54,11 +77,13 @@ object Admin extends Controller with Secured with ControllerUtil {
 
       // Failure. Re-post.
       { form =>
+
         val id = form("id").value.get.toInt
         User.findByID(id) match {
           case Left(error) =>
             Redirect(routes.Admin.index).
               flashing("error" -> ("Unable to find user with ID " + id.toString))
+
           case Right(user) =>
             BadRequest(views.html.admin.edituser(user, currentUser, form)).
               flashing("error" -> "Validation failed.")
@@ -67,18 +92,38 @@ object Admin extends Controller with Secured with ControllerUtil {
         
 
       { user =>
-        Redirect(routes.Admin.editUser(user.id.get)).flashing("info" -> "Saved.")
+        User.update(user) match {
+          case Left(error) =>
+            val filledForm = editUserForm.fill(user)
+            // Can't use "flashing" here, because the template will already
+            // have been rendered by the time Ok is called. Instead, create
+            // our own flash object and pass it to the template.
+            //
+            // This COULD be done with an implicit parameter, but using an
+            // implicit parameter leads to less obvious code. Here's how,
+            // though:
+            //
+            //     implicit val flash = Flash(Map(...))
+            //     Ok(views.html.admin.edituser(...))
+            val flash = Flash(Map("error" -> error))
+            Ok(views.html.admin.edituser(user, currentUser, filledForm)(flash))
+
+          case Right(worked:Boolean) =>
+            Redirect(routes.Admin.editUser(user.id.get)).
+              flashing("info" -> "Saved.")
+        }
       }
     )
   }
 
   // A valid password must have at least one number, one or more characters,
   // at at least one punctuation character. Length is asserted elsewhere.
-  private val ValidPassword = """^(?=.*\d)(?=.*[a-zA-Z])(?=.*[-!@#$%^&*.,_:;])""".r
+  private val ValidPassword = """^(?=.*\d)(?=.*[a-zA-Z])(?=.*[\-!@#$%^&*.,_:;])""".r
 
   private def validPassword(password: String) = {
     ValidPassword.findFirstIn(password).map {s =>
-      (s.length >= 8) && (s.length <= 32)
+      (password.length >= MinPasswordLength) &&
+      (password.length <= MaxPasswordLength)
     }.getOrElse(false)
   }
 

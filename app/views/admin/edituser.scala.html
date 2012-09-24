@@ -3,8 +3,12 @@
 @import helper._
 @import helper.twitterBootstrap._
 
+@head = {
+  <script src="@routes.Assets.at("javascripts/admin.js")"></script>
+}
+
 @{/* Don't want the admin page here, with its AJAXness. */}
-@main("Edit User", flash, user = Some(currentUser)) {
+@main("Edit User", flash, additionalHead = Some(head), user = Some(currentUser)) {
 
   <div class="span12">
     @editForm.globalError.map { error =>
