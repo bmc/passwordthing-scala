@@ -1,4 +1,7 @@
-@(title: String, flash: Flash, additionalHead: Option[Html] = None, user: Option[User] = None)(content: Html)
+@(title: String,
+  additionalHead: Option[Html] = None,
+  currentUser: Option[User] = None
+)(content: Html)(implicit flash: Flash)
 
 @import play._
 @import play.mvc._
@@ -11,7 +14,7 @@
   <head>
     <title>@title</title>
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
-    @user.map { u =>
+    @currentUser.map { u =>
       @if(u.isAdmin) {
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/admin.css")">
       }
@@ -51,7 +54,7 @@
             PasswordThing
           </a>
           <ul class="nav">
-            @user.map { u =>
+            @currentUser.map { user =>
               <li id="nav-home" class="active">
                 <a href="@routes.Application.index()">
                   <i class="icon-home"></i>Home
@@ -68,7 +71,7 @@
                 </a>
               </li>
 
-              @if(u.isAdmin) {
+              @if(user.isAdmin) {
                 <li>
                   <a href="@adminRoutes.Admin.index()">
                     <i class="icon-wrench"></i>Admin
@@ -82,10 +85,10 @@
               </li>
             }
           </ul>
-          @user.map {u =>
+          @currentUser.map { user =>
             <div id="logged-in-as">
               <span class="prefix">Logged in as</span>
-              <span class="username">@u.username</span>
+              <span class="username">@user.username</span>
             </div>
           }
         </div>

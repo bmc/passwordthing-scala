@@ -65,7 +65,10 @@ object User {
     }.map {decodeUser _}
   }
 
-  def create(name: String, password: String, isAdmin: Boolean): Option[User] = {
+  def create(name: String,
+             password: String,
+             isAdmin: Boolean): Either[String, User] = {
+
     val user = User(name, encrypt(password), None, None, isAdmin)
     try {
       DB.withConnection { implicit connection =>
@@ -81,13 +84,23 @@ object User {
         ).executeInsert()
       }
 
-      Some(user)
+      // Reload, to get the ID.
+      findByName(name) match {
+        case Left(error) =>
+          val msg = "Couldn't reload user after save: %s".format(error)
+          Logger.error(msg)
+          Left(msg)
+
+        case Right(user) =>
+          Right(user)
+      }
     }
 
     catch {
       case e: java.sql.SQLException =>
-        Logger.error("Failed to create user: " + e.getMessage)
-        None
+        val msg = "Failed to create user: %s".format(e.getMessage)
+        Logger.error(msg)
+        Left(msg)
     }
   }
 

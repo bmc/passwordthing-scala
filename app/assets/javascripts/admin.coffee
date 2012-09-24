@@ -26,15 +26,13 @@ $(document).ready ->
     $.post(url, null, handleResponse, "json")
     false
 
-  $("#new-user").click ->
-    alert "Would display user form here"
-
   $(".help-inline").each (i) ->
     text = $(this).text().trim()
     if text.length > 0
       $(this).empty()
-      $(this).append("<i class='error-icon icon-exclamation-sign'></i>")
+      $(this).append("<i class='error-icon icon-warning-sign'></i>")
       $(this).show()
       $(this).popover
         content: text
         trigger: 'hover'
+        title:   '<b>Error in form</b>'

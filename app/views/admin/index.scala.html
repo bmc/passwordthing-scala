@@ -1,4 +1,64 @@
-@(user: User)(implicit flash: Flash)
+@(currentUser: User)(implicit flash: Flash)
 
-@admin(user, flash) {
+@import controllers.admin.{routes => adminRoutes}
+
+@head = {
+  <script src="@routes.Assets.at("javascripts/admin.js")"></script>
+}
+
+@main("Admin", additionalHead = Some(head), currentUser = Some(currentUser)) {
+  <div id="admin">
+    <div class="span3">
+      <div id="sidebar" class="well">
+        <img src="@routes.Assets.at("images/loading.gif")"
+             id="loader" style="display:none">
+        <header>Actions</header>
+        <ul id="actions">
+          <li>
+            <a id="list-users" href="javascript:void(0)"
+               data-url="@adminRoutes.UserAdmin.listUsers()">List all users</a>
+          </li>
+          <li>
+            <a id="new-user"
+               href="@adminRoutes.UserAdmin.newUser()">New user</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="span9">
+      <!-- User display -->
+      <table id="users" class="table table-hover table-bordered"
+             style="display:none">
+        <caption>Users</caption>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Administrator?</th>
+            <th>Actions</th>
+          </tr>
+          <!--
+            When handling the AJAX query for the list of users, the Javascript
+            clones this element for each user, appending it to the table. This
+            template must be here, rather than the <tbody>, because the <tbody>
+            is cleared with every request.
+          -->
+          <tr id="user-template" style="display:none">
+            <td class="field-value user-id"></td>
+            <td class="field-value user-username"></td>
+            <td class="field-value user-admin"></td>
+            <td>
+              <a class="btn btn-small edit-button"
+                 href="@adminRoutes.UserAdmin.editUser(-1)"> 
+                Edit
+              </a>
+            </td>
+          </tr>
+        </thead>
+
+        <tbody id="user-list"></tbody>
+      </table>
+    </div>
+</div>
 }

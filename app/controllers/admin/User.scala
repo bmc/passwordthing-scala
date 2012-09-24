@@ -16,60 +16,58 @@ import controllers.util._
 
 object UserAdmin extends Controller with Secured with ControllerUtil {
 
-  val MinUsernameLength = 3
-  val MinPasswordLength = 8
-  val MaxPasswordLength = 32
-  val PasswordError = 
+  // ----------------------------------------------------------------------
+  // Constants
+  // ----------------------------------------------------------------------
+
+  private val MinUsernameLength = 3
+  private val MinPasswordLength = 8
+  private val MaxPasswordLength = 32
+  // A valid password must have at least one number, one or more characters,
+  // at at least one punctuation character. Length is asserted elsewhere.
+  private val ValidPassword = """^(?=.*\d)(?=.*[a-zA-Z])(?=.*[\-!@#$%^&*.,_:;])""".r
+  private val PasswordError = 
     """|Passwords must be between %d and %d characters and must have at
        |least one letter, one number, and one punctuation character.""".
     stripMargin.format(MinPasswordLength, MaxPasswordLength)
 
-
-  val editUserForm = Form(
-    mapping(
-      "username"              -> nonEmptyText(minLength=MinUsernameLength),
-      "password"              -> optional(text.verifying(PasswordError, validPassword _)),
-      "password_confirmation" -> optional(text.verifying(PasswordError, validPassword _)),
-      "isAdmin"               -> boolean,
-      "id"                    -> longNumber
-    )
-    (User.applyForEdit)
-    (User.unapplyForEdit)
-    verifying("Passwords don't match.", { user =>
-      user.password.getOrElse("") == user.passwordConfirmation.getOrElse("")
-    })
-  )
-
-  val newUserForm = Form(
-    mapping(
-      "username"              -> nonEmptyText(minLength=MinUsernameLength).
-                                 verifying("User already exists", uniqueUser _),
-      "password"              -> text.verifying(PasswordError, validPassword _),
-      "password_confirmation" -> text.verifying(PasswordError, validPassword _),
-      "isAdmin"               -> boolean
-    )
-    (User.applyForCreate)
-    (User.unapplyForCreate)
-    verifying("Passwords don't match.", { user =>
-      user.password == user.passwordConfirmation
-    })
-  )
+  // ----------------------------------------------------------------------
+  // Actions
+  // ----------------------------------------------------------------------
 
   def listUsers = withAdminUser { user => implicit request =>
     Ok(Json.toJson(User.all.map {_.toJson}))
   }
 
+  private val editUserForm = Form(
+    mapping(
+      "username"              -> nonEmptyText(minLength=MinUsernameLength),
+      "password"              -> optional(text.verifying(PasswordError,
+                                                         validPassword _)),
+      "password_confirmation" -> optional(text.verifying(PasswordError,
+                                                         validPassword _)),
+      "isAdmin"               -> boolean,
+      "id"                    -> longNumber
+    )
+    (User.applyForEdit)
+    (User.unapplyForEdit)
+    verifying("Passwords don't match.", passwordsMatch _)
+  )
+
+  /** Display the form to edit an existing user.
+    */
   def editUser(id: Long) = withAdminUser { currentUser => implicit request =>
     User.findByID(id) match {
       case Left(error) =>
         Redirect(admin.routes.Admin.index()).flashing("error" -> error)
       case Right(user) =>
-        val filledForm = editUserForm.fill(user)
-        Ok(views.html.admin.edituser(user, currentUser, filledForm))
+        Ok(views.html.admin.edituser(user, currentUser, editUserForm.fill(user)))
     }
   }
 
-  def saveUser = withAdminUser(parse.urlFormEncoded) {
+  /** Update a user in response to an edit operation.
+    */
+  def updateUser = withAdminUser(parse.urlFormEncoded) {
     currentUser => implicit request =>
 
     editUserForm.bindFromRequest.fold (
@@ -84,8 +82,7 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
               flashing("error" -> ("Unable to find user with ID " + id.toString))
 
           case Right(user) =>
-            BadRequest(views.html.admin.edituser(user, currentUser, form)).
-              flashing("error" -> "Validation failed.")
+            BadRequest(views.html.admin.edituser(user, currentUser, form))
         }
       },
 
@@ -114,15 +111,67 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
     )
   }
 
-  // A valid password must have at least one number, one or more characters,
-  // at at least one punctuation character. Length is asserted elsewhere.
-  private val ValidPassword = """^(?=.*\d)(?=.*[a-zA-Z])(?=.*[\-!@#$%^&*.,_:;])""".r
+  val newUserForm = Form(
+    mapping(
+      "username"              -> nonEmptyText(minLength=MinUsernameLength).
+                                 verifying("User already exists", uniqueUser _),
+      "password"              -> text.verifying(PasswordError, validPassword _),
+      "password_confirmation" -> text.verifying(PasswordError, validPassword _),
+      "isAdmin"               -> boolean
+    )
+    (User.applyForCreate)
+    (User.unapplyForCreate)
+    verifying("Passwords don't match.", passwordsMatch _)
+  )
+
+  /** Display the form to edit an existing user.
+    */
+  def newUser = withAdminUser { currentUser => implicit request =>
+    Ok(views.html.admin.newuser(currentUser, newUserForm))
+  }
+
+  /** Update a user in response to an edit operation.
+    */
+  def createUser = withAdminUser(parse.urlFormEncoded) {
+    currentUser => implicit request =>
+
+    newUserForm.bindFromRequest.fold (
+
+      // Failure. Re-post.
+      { form =>
+
+        BadRequest(views.html.admin.newuser(currentUser, form))
+      },
+
+      { user =>
+        User.create(user.username, user.password.get, user.isAdmin) match {
+          case Left(error) =>
+            val filledForm = newUserForm.fill(user)
+            val flash = Flash(Map("error" -> error))
+            Ok(views.html.admin.newuser(currentUser, filledForm)(flash))
+
+          case Right(dbUser) => {
+            Redirect(admin.routes.UserAdmin.editUser(dbUser.id.get)).
+              flashing("info" -> "Saved.")
+          }
+        }
+      }
+    )
+  }
+
+  // ----------------------------------------------------------------------
+  // Private methods
+  // ----------------------------------------------------------------------
 
   private def validPassword(password: String) = {
     ValidPassword.findFirstIn(password).map {s =>
       (password.length >= MinPasswordLength) &&
       (password.length <= MaxPasswordLength)
     }.getOrElse(false)
+  }
+
+  private def passwordsMatch(user: User) = {
+    user.password.getOrElse("") == user.passwordConfirmation.getOrElse("")
   }
 
   private def uniqueUser(username: String) = {

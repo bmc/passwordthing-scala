@@ -15,7 +15,7 @@ import controllers.util._
   * controller.
   */
 object Admin extends Controller with Secured with ControllerUtil {
-  def index = withAdminUser { user => implicit request =>
-    Ok(views.html.admin.index(user))
+  def index = withAdminUser { currentUser => implicit request =>
+    Ok(views.html.admin.index(currentUser))
   }
 }
