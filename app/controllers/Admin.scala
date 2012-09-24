@@ -19,7 +19,8 @@ object Admin extends Controller with Secured with ControllerUtil {
                                  verifying("User already exists", uniqueUser _),
       "password"              -> text.verifying(validPassword _),
       "password_confirmation" -> text.verifying(validPassword _),
-      "isAdmin"               -> checked("Admin")
+      "isAdmin"               -> checked("Admin"),
+      "id"                    -> longNumber
     )
     (User.applyForEdit)
     (User.unapplyForEdit)
@@ -41,8 +42,34 @@ object Admin extends Controller with Secured with ControllerUtil {
       case Left(error) =>
         Redirect(routes.Admin.index()).flashing("error" -> error)
       case Right(user) =>
-        Ok(views.html.admin.edituser(user, currentUser, editUserForm))
+        val filledForm = editUserForm.fill(user)
+        Ok(views.html.admin.edituser(user, currentUser, filledForm))
     }
+  }
+
+  def saveUser = withAdminUser(parse.urlFormEncoded) {
+    currentUser => implicit request =>
+
+    editUserForm.bindFromRequest.fold (
+
+      // Failure. Re-post.
+      { form =>
+        val id = form("id").value.get.toInt
+        User.findByID(id) match {
+          case Left(error) =>
+            Redirect(routes.Admin.index).
+              flashing("error" -> ("Unable to find user with ID " + id.toString))
+          case Right(user) =>
+            BadRequest(views.html.admin.edituser(user, currentUser, form)).
+              flashing("error" -> "Validation failed.")
+        }
+      },
+        
+
+      { user =>
+        Redirect(routes.Admin.editUser(user.id.get)).flashing("info" -> "Saved.")
+      }
+    )
   }
 
   // A valid password must have at least one number, one or more characters,

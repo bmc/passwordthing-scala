@@ -9,7 +9,7 @@ case class User(username:             String,
                 password:             Option[String], // Not persisted
                 passwordConfirmation: Option[String], // Not persisted
                 isAdmin:              Boolean,
-                id:                   Option[Int] = None) {
+                id:                   Option[Long] = None) {
 
   // Convert this user object to JSON (a JsValue, not a string). To
   // convert this result to a JSON string, use this code:
@@ -20,7 +20,7 @@ case class User(username:             String,
     Map(
       "username" -> Json.toJson(username),
       "isAdmin"  -> Json.toJson(isAdmin),
-      "id"       -> Json.toJson(id.getOrElse(-1))
+      "id"       -> Json.toJson(id.getOrElse(-1.toLong))
     )
   )
 }
@@ -66,7 +66,7 @@ object User {
   }
 
   def create(name: String, password: String, isAdmin: Boolean): Option[User] = {
-    val user = User(name, Crypto.sign(password), None, None, isAdmin)
+    val user = User(name, encrypt(password), None, None, isAdmin)
     try {
       DB.withConnection { implicit connection =>
         SQL(
@@ -86,17 +86,48 @@ object User {
 
     catch {
       case e: java.sql.SQLException =>
-        Logger.debug("Failed to create user: " + e.getMessage)
+        Logger.error("Failed to create user: " + e.getMessage)
         None
+    }
+  }
+
+  def update(user: User): Either[String, Boolean] = {
+    val userToSave = user.password.map { pw =>
+      User(user.username,
+           encrypt(pw),
+           Some(pw),
+           Some(pw),
+           user.isAdmin,
+           user.id)
+    }.getOrElse(user)
+
+    id = userToSave.id.get // Must be there.
+    try {
+      DB.withConnection { implicit connection =>
+        val sql = user.password match {
+          case None =>
+            SQL("UPDATE user SET name = {name}, is_admin ")
+        }
+      }
+    }
+
+    catch {
+      case e: java.sql.Exception =>
+        msg = "Failed to update user with ID %s: %d".format(
+          user.id.get, e.getMessage
+        )
+        Logger.error(msg)
+        Left(msg)
     }
   }
 
   def applyForEdit(name:                 String,
                    password:             String,
                    passwordConfirmation: String,
-                   isAdmin:              Boolean) = {
+                   isAdmin:              Boolean,
+                   id:                   Long) = {
     User(name,
-         Crypto.sign(password),
+         encrypt(password),
          Some(password),
          Some(passwordConfirmation),
          isAdmin)
@@ -106,10 +137,11 @@ object User {
     Some((user.username, 
           user.password.getOrElse(""),
           user.passwordConfirmation.getOrElse(""),
-          user.isAdmin))
+          user.isAdmin,
+          user.id.getOrElse(0.toLong)))
 
   def applyForLogin(name: String, password: String): User =
-    User(name, Crypto.sign(password), None, None, false)
+    User(name, encrypt(password), None, None, false)
 
   def unapplyForLogin(user: User) =
     Some((user.username, user.encryptedPassword))
@@ -124,4 +156,6 @@ object User {
   }
 
   private def decodeBoolean(value: Int) = if (value == 0) false else true
+
+  private def encrypt(password: String) = Crypto.sign(password)
 }
