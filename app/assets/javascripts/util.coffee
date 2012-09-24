@@ -38,3 +38,13 @@ window.confirm = (msg, onSuccess, options = {}) ->
     backdrop: 'static'
     show:     true
   )
+
+# Flash a message. Type can be "error" or "info". Assumes the existence of
+# a <div> with id "flash" and a template with id "flash-template"
+window.flash = (type, msg) ->
+  elem = $("#flash-template").clone()
+  elem.attr("id", "")
+  elem.find(".flash-message").text(msg)
+  elem.find(".alert").addClass("alert-#{type}")
+  $("#flash").empty().append(elem)
+  elem.show()
