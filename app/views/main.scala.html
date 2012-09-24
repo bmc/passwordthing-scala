@@ -1,7 +1,8 @@
-@(title: String, additionalHead: Option[Html] = None, user: Option[User] = None)(content: Html)
+@(title: String, flash: Flash, additionalHead: Option[Html] = None, user: Option[User] = None)(content: Html)
 
 @import play._
 @import play.mvc._
+@import helper._
 
 <!DOCTYPE html>
 
@@ -93,6 +94,14 @@
       </div>
 
       <div id="content">
+        @Seq("info", "error").map {t =>
+          @flash.data.get(t).map { message =>
+            <div class="alert alert-@t">
+              <a class="close" data-dismiss="alert">x</a>
+              @message
+            </div>
+          }.getOrElse("")
+        }
         <div class="row-fluid">
           @content
         </div>

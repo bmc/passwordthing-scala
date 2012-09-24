@@ -29,11 +29,20 @@ object Admin extends Controller with Secured with ControllerUtil {
   )
 
   def index = withAdminUser { user => implicit request =>
-    Ok(views.html.admin.index(user, editUserForm))
+    Ok(views.html.admin.index(user))
   }
 
   def listUsers = withAdminUser { user => implicit request =>
     Ok(Json.toJson(User.all.map {_.toJson}))
+  }
+
+  def editUser(id: Long) = withAdminUser { currentUser => implicit request =>
+    User.findByID(id) match {
+      case Left(error) =>
+        Redirect(routes.Admin.index()).flashing("error" -> error)
+      case Right(user) =>
+        Ok(views.html.admin.edituser(user, currentUser, editUserForm))
+    }
   }
 
   // A valid password must have at least one number, one or more characters,

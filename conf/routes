@@ -15,6 +15,7 @@ GET     /logout                     controllers.Auth.logout
 
 GET     /admin                      controllers.Admin.index
 POST    /admin/users                controllers.Admin.listUsers
+GET     /admin/user/:id/edit        controllers.Admin.editUser(id: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

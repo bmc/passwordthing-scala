@@ -1,6 +1,6 @@
-@(message: String, user: User)
+@(message: String, user: User)(implicit flash: Flash)
 
-@main("Not implemented yet", user = Some(user)) {
+@main("Not implemented yet", flash, user = Some(user)) {
   <div class="span12">
     <h2>Not yet implemented.</h2>
 

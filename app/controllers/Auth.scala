@@ -21,7 +21,7 @@ object Auth extends Controller {
     verifying("Invalid user name and password", validLogin _)
   )
 
-  def login = Action {
+  def login = Action { implicit request =>
     Ok(views.html.login(loginForm))
   }
 

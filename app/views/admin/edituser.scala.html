@@ -1,0 +1,5 @@
+@(editUser: User, currentUser: User, editForm: Form[models.User])(implicit flash: Flash)
+
+@{/* Don't want the admin page here, with its AJAXness. */}
+@main("Edit User", flash, user = Some(currentUser)) {
+}

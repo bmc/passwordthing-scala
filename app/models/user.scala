@@ -39,9 +39,21 @@ object User {
       val query = SQL("SELECT * FROM user WHERE username = {name}").
                   on("name" -> name)
       query.apply().map {decodeUser _}.toList match {
-        case user :: users :: Nil => Left("Multiple users match that username!")
+        case user :: users :: Nil => Left("(BUG) Multiple users match username!")
         case user :: Nil          => Right(user)
         case Nil                  => Left("Unknown user: \"" + name + "\"")
+      }
+    }
+  }
+
+  def findByID(id: Long): Either[String, User] = {
+    DB.withConnection { implicit connection =>
+      val query = SQL("SELECT * FROM user WHERE id = {id}").on("id" -> id)
+
+      query.apply().map {decodeUser _}.toList match {
+        case user :: users :: Nil => Left("(BUG) Multiple users match that ID!")
+        case user :: Nil          => Right(user)
+        case Nil                  => Left("Unknown user ID: \"" + id + "\"")
       }
     }
   }

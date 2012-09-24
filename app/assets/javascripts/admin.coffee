@@ -1,7 +1,4 @@
 $(document).ready ->
-  editUser = (event) ->
-    event.preventDefault()
-
   $("#list-users").click ->
     url = $(this).data("url")
     $("#user-list").empty()
@@ -10,14 +7,14 @@ $(document).ready ->
       $("#loader").hide()
       array = eval(data)
       $.each(array, (i) ->
+        id = this["id"]
         newElem = $("#user-template").clone()
         newElem.find(".user-username").append(this["username"])
-        newElem.find(".user-id").append(this["id"])
+        newElem.find(".user-id").append(id)
         admin = if this["isAdmin"] then "Y" else "N"
         newElem.find(".user-admin").append(admin)
         button = newElem.find(".edit-button").first()
-        button.data("id", this["id"])
-        button.click editUser
+        button.attr("href", button.attr("href").replace("-1", id))
         newElem.removeAttr("id")
         $("#user-list").append(newElem)
         newElem.show()

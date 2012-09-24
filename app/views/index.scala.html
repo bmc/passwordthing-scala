@@ -1,4 +1,4 @@
-@(user: User)
+@(user: User)(implicit flash: Flash)
 
-@main("Main", user = Some(user)) {
+@main("Main", flash, user = Some(user)) {
 }

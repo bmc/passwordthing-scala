@@ -1,4 +1,4 @@
-@(user: User, editForm: Form[models.User])
+@(user: User)(implicit flash: Flash)
 
-@admin(user, editForm) {
+@admin(user, flash) {
 }

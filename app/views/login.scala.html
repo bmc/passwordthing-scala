@@ -1,10 +1,10 @@
-@(loginForm: Form[models.User])
+@(loginForm: Form[models.User])(implicit flash: Flash)
 
 @{/* Gets the "form" helper used below. */}
 @import helper._
 @import helper.twitterBootstrap._
 
-@main("Login") {
+@main("Login", flash) {
 
   <div class="span12">
 

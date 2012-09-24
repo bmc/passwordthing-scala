@@ -1,10 +1,10 @@
-@(user: User, editForm: Form[models.User])(content: Html)
+@(user: User, flash: Flash)(content: Html)
 
 @head = {
   <script src="@routes.Assets.at("javascripts/admin.js")"></script>
 }
 
-@main("Admin", additionalHead = Some(head), user = Some(user)) {
+@main("Admin", flash, additionalHead = Some(head), user = Some(user)) {
   <div id="admin">
     <div class="span3">
       <div id="sidebar" class="well">
@@ -48,24 +48,16 @@
             <td class="field-value user-username"></td>
             <td class="field-value user-admin"></td>
             <td>
-              <button class="btn btn-small edit-button" data-id="">
+              <a class="btn btn-small edit-button"
+                 href="@routes.Admin.editUser(-1)"> 
                 Edit
-              </button>
+              </a>
             </td>
           </tr>
         </thead>
 
         <tbody id="user-list"></tbody>
       </table>
-
-      <table id="edit-user" class="table table-hover" style="display:none">
-        <tr>
-          <td><label>Username</label></td>
-          <td><input readonly="true" class="username" type="text" size="30"></td>
-        </tr>
-        <tr>
-          <td><label>Password</label></td>
-
     </div>
 </div>
 }
