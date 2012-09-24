@@ -44,4 +44,22 @@ trait ModelUtil {
         Left(msg)
     }
   }
+
+  /** Run a block of code within a database connection.
+    */
+  def withDBConnection[T](code: java.sql.Connection => Either[String,T]):
+  Either[String, T] = {
+    try {
+      DB.withConnection { implicit connection =>
+        code(connection)
+      }
+    }
+
+    catch {
+      case e: java.sql.SQLException =>
+        Logger.error(e.getMessage)
+        Left(e.getMessage)
+    }
+  }
+
 }

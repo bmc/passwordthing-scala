@@ -73,32 +73,30 @@ object User extends ModelUtil {
              isAdmin: Boolean): Either[String, User] = {
 
     val user = User(name, encrypt(password), None, None, isAdmin)
-    executeSQL {
-      DB.withConnection { implicit connection =>
-        val sql = SQL(
-          """
-          INSERT INTO user(username, encrypted_password, is_admin)
-          VALUES({name}, {pw}, {admin})
-          """
-        ).on(
-          "name"  -> user.username,
-          "pw"    -> user.encryptedPassword,
-          "admin" -> encodeBoolean(user.isAdmin)
-        )
+    withDBConnection { implicit connection =>
+      val sql = SQL(
+        """
+        INSERT INTO user(username, encrypted_password, is_admin)
+        VALUES({name}, {pw}, {admin})
+        """
+      ).on(
+        "name"  -> user.username,
+        "pw"    -> user.encryptedPassword,
+        "admin" -> encodeBoolean(user.isAdmin)
+      )
 
-        Logger.debug(sqlToString(sql))
-        sql.executeInsert()
+      Logger.debug(sqlToString(sql))
+      sql.executeInsert()
 
-        // Reload, to get the ID.
-        findByName(name) match {
-          case Left(error) =>
-            val msg = "Couldn't reload user after save: %s".format(error)
-            Logger.error(msg)
-            Left(msg)
+      // Reload, to get the ID.
+      findByName(name) match {
+        case Left(error) =>
+          val msg = "Couldn't reload user after save: %s".format(error)
+          Logger.error(msg)
+          Left(msg)
 
-          case Right(user) =>
-            Right(user)
-        }
+        case Right(user) =>
+          Right(user)
       }
     }
   }
@@ -129,23 +127,17 @@ object User extends ModelUtil {
       )
     )
 
-    executeSQL {
-      DB.withConnection { implicit connection =>
-        Logger.debug(sqlToString(sql))
-        sql.executeUpdate()
-        Right(true)
-      }
+    withDBConnection { implicit connection =>
+      sql.executeUpdate()
+      Right(true)
     }
   }
 
   def delete(id: Long): Either[String, Boolean] = {
-    executeSQL {
-      DB.withConnection { implicit connection =>
-        val sql = SQL("DELETE FROM user WHERE id = {id}").on("id" -> id)
-        Logger.debug(sqlToString(sql))
-        sql.executeUpdate()
-        Right(true)
-      }
+    withDBConnection { implicit connection =>
+      val sql = SQL("DELETE FROM user WHERE id = {id}").on("id" -> id)
+      sql.executeUpdate()
+      Right(true)
     }
   }
 
@@ -155,19 +147,6 @@ object User extends ModelUtil {
   // ----------------------------------------------------------------------
   // Private methods
   // ----------------------------------------------------------------------
-
-  private def executeSQL[T](code: => Either[String,T]): Either[String, T] = {
-    try {
-      code
-    }
-
-    catch {
-      case e: java.sql.SQLException =>
-        val msg = "SQL failed: %s".format(e.getMessage)
-        Logger.error(msg)
-        Left(msg)
-    }
-  }
 
   private def decodeUser(row: Row): User = {
     User(row[String]("username"),
