@@ -21,9 +21,9 @@ for free. e.g.:
     import controllers._
 
 The routes are different, as well. For instance, the generated index routes for
-`controller.admin` aren't `routes.admin.whatever.index()`, as you might
-expected. Instead, they're `admin.routes.whatever.index()`. This can lead
-to problems in the templates, because you can't just do this:
+`controller.admin` aren't `routes.admin.whatever.index()`, as you might expect.
+Instead, they're `admin.routes.whatever.index()`. This can lead to problems in
+the templates, because you can't just do this:
 
     @import controller.admin.routes
 
@@ -42,6 +42,8 @@ That's because the admin `routes` object isn't the one that has the
       <img src="@routes.Assets.at("images/logo.png")">
       ..
       <a href="@adminRoutes.UserAdmin.index()">...</a>
+
+See also: <http://goo.gl/OYINy>
 
 ## Possible Enhancements
 
