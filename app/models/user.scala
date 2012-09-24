@@ -99,7 +99,8 @@ object User {
     }.map { pw =>
       // Within this block, we know we actually have a password.
       SQL("""|UPDATE user
-             |SET name = {name}, encrypted_password = {pw}, is_admin = {admin}
+             |SET username = {name}, encrypted_password = {pw},
+             |is_admin = {admin}
              |WHERE id = {id}""".stripMargin).
       on("name"  -> user.username,
          "pw"    -> encrypt(pw),

@@ -8,6 +8,8 @@ import play.api.data.Form
 import models.User._
 import models._
 
+import controllers.util._
+
 object Application extends Controller with Secured {
   
   def index = withUser { user => implicit request =>

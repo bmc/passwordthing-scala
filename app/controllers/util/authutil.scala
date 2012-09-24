@@ -1,10 +1,12 @@
-package controllers
+package controllers.util
 
 import play.api._
 import play.api.mvc._
 
 import models.User._
 import models._
+
+import controllers._
 
 // Based on this example: 
 // http://www.playframework.org/documentation/2.0.1/ScalaSecurity
@@ -102,13 +104,5 @@ trait Secured {
       case Right(user) =>
         f(user)(request)
     }
-  }
-}
-
-trait ControllerUtil {
-  self: Controller with Secured =>
-
-  def myToDo(message: String = "") = withUser { user => implicit request =>
-    Ok(views.html.mytodo(message, user))
   }
 }

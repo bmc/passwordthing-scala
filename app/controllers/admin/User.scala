@@ -1,4 +1,4 @@
-package controllers
+package controllers.admin
 
 import play.api._
 import play.api.mvc._
@@ -9,9 +9,12 @@ import play.api.libs.json.Json
 import models.User._
 import models._
 
+import controllers._
+import controllers.util._
+
 // Not the real user. Only used internally.
 
-object Admin extends Controller with Secured with ControllerUtil {
+object UserAdmin extends Controller with Secured with ControllerUtil {
 
   val MinUsernameLength = 3
   val MinPasswordLength = 8
@@ -52,10 +55,6 @@ object Admin extends Controller with Secured with ControllerUtil {
     })
   )
 
-  def index = withAdminUser { user => implicit request =>
-    Ok(views.html.admin.index(user))
-  }
-
   def listUsers = withAdminUser { user => implicit request =>
     Ok(Json.toJson(User.all.map {_.toJson}))
   }
@@ -63,7 +62,7 @@ object Admin extends Controller with Secured with ControllerUtil {
   def editUser(id: Long) = withAdminUser { currentUser => implicit request =>
     User.findByID(id) match {
       case Left(error) =>
-        Redirect(routes.Admin.index()).flashing("error" -> error)
+        Redirect(admin.routes.Admin.index()).flashing("error" -> error)
       case Right(user) =>
         val filledForm = editUserForm.fill(user)
         Ok(views.html.admin.edituser(user, currentUser, filledForm))
@@ -81,7 +80,7 @@ object Admin extends Controller with Secured with ControllerUtil {
         val id = form("id").value.get.toInt
         User.findByID(id) match {
           case Left(error) =>
-            Redirect(routes.Admin.index).
+            Redirect(admin.routes.Admin.index()).
               flashing("error" -> ("Unable to find user with ID " + id.toString))
 
           case Right(user) =>
@@ -89,7 +88,6 @@ object Admin extends Controller with Secured with ControllerUtil {
               flashing("error" -> "Validation failed.")
         }
       },
-        
 
       { user =>
         User.update(user) match {
@@ -109,7 +107,7 @@ object Admin extends Controller with Secured with ControllerUtil {
             Ok(views.html.admin.edituser(user, currentUser, filledForm)(flash))
 
           case Right(worked:Boolean) =>
-            Redirect(routes.Admin.editUser(user.id.get)).
+            Redirect(admin.routes.UserAdmin.editUser(user.id.get)).
               flashing("info" -> "Saved.")
         }
       }

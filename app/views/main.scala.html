@@ -3,6 +3,7 @@
 @import play._
 @import play.mvc._
 @import helper._
+@import controllers.admin.{routes => adminRoutes}
 
 <!DOCTYPE html>
 
@@ -69,7 +70,7 @@
 
               @if(u.isAdmin) {
                 <li>
-                  <a href="@routes.Admin.index()">
+                  <a href="@adminRoutes.Admin.index()">
                     <i class="icon-wrench"></i>Admin
                   </a>
                 </li>
@@ -91,7 +92,6 @@
       </div>
 
       <div id="content">
-        @Logger.debug(flash.toString)
         @Seq("info", "error").map {t =>
           @flash.data.get(t).map { message =>
             <div class="alert alert-@t">

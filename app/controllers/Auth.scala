@@ -10,6 +10,9 @@ import play.api.libs.Crypto
 import models.User._
 import models._
 
+import controllers._
+import controllers.util._
+
 object Auth extends Controller {
   val loginForm = Form(
     mapping(

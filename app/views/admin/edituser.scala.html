@@ -2,6 +2,7 @@
 
 @import helper._
 @import helper.twitterBootstrap._
+@import controllers.admin.{routes => adminRoutes}
 
 @head = {
   <script src="@routes.Assets.at("javascripts/admin.js")"></script>
@@ -18,14 +19,14 @@
       </div>
     }
 
-    <a href="@routes.Admin.index()" class="btn btn-link">
+    <a href="@adminRoutes.Admin.index()" class="btn btn-link">
       <i class="icon-arrow-left"></i> Back to admin
     </a>
 
     <div id="edit-user-form" class="well">
       <div class="heading">Edit user @editUser.username</div>
 
-      @form(action = routes.Admin.saveUser) {
+      @form(action = adminRoutes.UserAdmin.saveUser) {
         @inputText(
           editForm("username"),
           args = 'size             -> 16,
@@ -43,7 +44,7 @@
                  '_placeholder     -> "password"
         )
         @inputPassword(
-          editForm("passwordConfirmation"),
+          editForm("password_confirmation"),
           args = 'size             -> 16,
                  'id               -> "password-confirmation",
                  '_label           -> "Password (again)",

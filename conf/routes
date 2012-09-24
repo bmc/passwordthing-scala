@@ -3,20 +3,20 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET     /                     controllers.Application.index
 
 # Site password routes
-GET     /sites                      controllers.Application.sites
-GET     /site/new                   controllers.Application.newSite
+GET     /sites                controllers.Application.sites
+GET     /site/new             controllers.Application.newSite
 
-POST    /sign-in                    controllers.Auth.authenticate
-GET     /login                      controllers.Auth.login
-GET     /logout                     controllers.Auth.logout
+POST    /sign-in              controllers.Auth.authenticate
+GET     /login                controllers.Auth.login
+GET     /logout               controllers.Auth.logout
 
-GET     /admin                      controllers.Admin.index
-POST    /admin/users                controllers.Admin.listUsers
-GET     /admin/user/:id/edit        controllers.Admin.editUser(id: Long)
-POST    /admin/user/save            controllers.Admin.saveUser
+GET     /admin                controllers.admin.Admin.index
+POST    /admin/users          controllers.admin.UserAdmin.listUsers
+GET     /admin/user/:id/edit  controllers.admin.UserAdmin.editUser(id: Long)
+POST    /admin/user/save      controllers.admin.UserAdmin.saveUser
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /assets/*file         controllers.Assets.at(path="/public", file)
