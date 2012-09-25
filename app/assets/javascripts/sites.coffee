@@ -39,9 +39,9 @@ $(document).ready ->
       showSiteList data
 
     deleteConfirmed = ->
+      window.clearFlash()
       $("#loader").show()
-      alert "Would delete site here"
-      #$.post(url, null, handleDeleteResponse, "json")
+      $.post(url, null, handleDeleteResponse, "json")
 
     window.confirm("Really delete the site?", deleteConfirmed)
 

@@ -49,6 +49,9 @@ window.flash = (type, msg) ->
   $("#flash").empty().append(elem)
   elem.show()
 
+window.clearFlash = ->
+  $("#flash").empty()
+
 # Flag inline errors in a form by adjusting the ".help-inline" elements
 # that actually have content.
 window.flagInlineFormErrors = (title) ->

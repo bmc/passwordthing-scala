@@ -51,6 +51,7 @@ $(document).ready ->
       showUserList data
 
     deleteConfirmed = ->
+      window.clearFlash()
       $("#loader").show()
       $.post(url, null, handleDeleteResponse, "json")
 

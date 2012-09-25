@@ -161,7 +161,22 @@ object SiteController extends Controller with Secured with ControllerUtil {
     }
   }
 
-  def delete(id: Long) = myToDo()
+  def delete(id: Long) = ActionWithUser { currentUser => implicit request =>
+    val error = Site.delete(id) match {
+      case Left(error) => Some(error)
+      case Right(bool) => None
+    }
+
+    Site.all match {
+      case Left(error2) =>
+        // Combine the errors, assuming there's a first one.
+        val e = error.map(_ + ", " + error2).getOrElse(error2)
+        Ok(siteJson(Nil, Some(e)))
+
+      case Right(sites) =>
+        Ok(siteJson(sites, error))
+    }
+  }
 
   // ----------------------------------------------------------------------
   // Private methods

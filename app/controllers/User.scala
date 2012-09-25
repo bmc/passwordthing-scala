@@ -39,7 +39,6 @@ object UserController extends Controller with Secured with ControllerUtil {
   }
 
   def list = ActionWithAdminUser { currentUser => implicit request =>
-Logger.debug("*** User.list")
     User.all match {
       case Left(error)  => Ok(userJson(Nil, Some(error)))
       case Right(users) => Ok(userJson(users))
@@ -175,13 +174,19 @@ Logger.debug("*** User.list")
     * Delete a user by ID.
     */
   def delete(id: Long) = ActionWithAdminUser { currentUser => implicit request =>
-    User.delete(id) match {
-      case Left(error) => Ok(userJson(Nil, Some(error)))
-      case Right(bool) =>
-        User.all match {
-          case Left(error)  => Ok(userJson(Nil, Some(error)))
-          case Right(users) => Ok(userJson(users))
-        }
+    val error = User.delete(id) match {
+      case Left(error) => Some(error)
+      case Right(bool) => None
+    }
+
+    User.all match {
+      case Left(error2) =>
+        // Combine the errors, assuming there's a first one.
+        val e = error.map(_ + ", " + error2).getOrElse(error2)
+        Ok(userJson(Nil, Some(e)))
+
+      case Right(users) =>
+        Ok(userJson(users, error))
     }
   }
 

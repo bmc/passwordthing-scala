@@ -128,6 +128,13 @@ object Site extends ModelUtil {
     }
   }
 
+  def delete(id: Long): Either[String, Boolean] = {
+    withDBConnection { implicit connection =>
+      SQL("DELETE FROM sites WHERE id = {id}").on("id" -> id).executeUpdate()
+      Right(true)
+    }
+  }
+
   // ----------------------------------------------------------------------
   // Private methods
   // ----------------------------------------------------------------------
