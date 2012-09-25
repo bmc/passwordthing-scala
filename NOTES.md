@@ -119,8 +119,70 @@ For details see:
 [Logback]: http://logback.qos.ch/
 [BoneCP]: http://jolbox.com/
 
+## Databases
+
+### H2
+
+I had all kinds of problems with database corruptions when using a file-based
+[H2][] database. In-memory databases worked fine. Whenever I'd exit the Play
+console, however, the file-based database ended up corrupted somehow.
+
+### PostgreSQL
+
+I have had no problems using Play with [PostgreSQL][].
+
+### MySQL
+
+I have not tried Play with [MySQL][], but, in general, the JVM plays fine with
+MySQL, so there shouldn't be any major issues.
+
+### Apache Derby
+
+Derby will work. It has some issues, though.
+
+#### Creating the database
+
+First, while it's possible to use the `;create=true` attribute on the Derby
+JDBC connection URL, I prefer to create the database manually.
+
+To do so, [download Derby][] and unpack it. It doesn't matter where you put the
+unpacked binary distribution.
+
+Then, from the top-level directory of the *PasswordThing* code base, invoke
+the `ij` tool, as follows:
+
+    $ /path/to/derby/bin/ij
+    ij version 10.9
+    ij> CONNECT 'jdbc:derby:databases/passwordthing;create=true';
+
+That suffices to create the database.
+
+#### Play Evolutions and Derby
+
+Play's [evolutions][] attempt to create a `play_evolutions` table with various
+columns of SQL type `TEXT`. Derby doesn't support `TEXT`. To get around this
+problem. you need to create the `play_evolutions` table manually. This can also
+be done within `ij`. Just cut and paste the following SQL into the `ij`
+console:
+
+    create table play_evolutions (
+      id int not null primary key,
+      hash varchar(255) not null,
+      applied_at timestamp not null,
+      apply_script long varchar,
+      revert_script long varchar,
+      state varchar(255), 
+      last_problem long varchar
+    )
+
 ## Possible Enhancements
 
 * Add CSRF support.
 * `@media` queries in the Less files, to adjust the content top-margin,
   when the browser width narrows and the navbar gets taller.
+
+[H2]: http://www.h2database.org/
+[SQLite]: http://www.sqlite.org/
+[download Derby]: http://db.apache.org/derby/derby_downloads.html
+[PostgreSQL]: http://www.postgresql.org/
+[MySQL]: http://dev.mysql.com/

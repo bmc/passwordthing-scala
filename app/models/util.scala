@@ -44,4 +44,14 @@ trait ModelUtil {
     }
   }
 
+  /** Convert a boolean for storage in the database. Assumes the lowest
+    * common denominator type, namely, integer.
+    */
+  def encodeBoolean(value: Boolean): Int = if (value) 1 else 0
+
+
+  /** Convert a boolean value in the database to a Scala boolean. Assumes the
+    * lowest common denominator type, namely, integer.
+    */
+  def decodeBoolean(dbValue: Int): Boolean = if (dbValue == 0) false else true
 }

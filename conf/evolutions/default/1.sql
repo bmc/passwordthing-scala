@@ -1,14 +1,14 @@
 # --- !Ups
 
-create table users(
-    id identity primary key,
+create table appusers(
+    id integer primary key asc,
     username varchar(30) not null unique,
     encrypted_password varchar(255) not null,
     is_admin boolean not null default false
 );
 
 create table sites(
-    id identity primary key,
+    id integer primary key,
     user_id integer not null,
     name varchar(255) not null,
     username varchar(255),
@@ -19,7 +19,7 @@ create table sites(
 );
 
 create table site_tags(
-    id identity primary key,
+    id integer primary key,
     site_id integer not null,
     tag varchar(255) not null
 );
