@@ -1,0 +1,5 @@
+@(asset: String, mimeType: String = "text/javascript")
+
+@* Script tag taking an asset path *@
+
+@script(routes.Assets.at(asset).toString)

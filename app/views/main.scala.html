@@ -6,22 +6,28 @@
 @import play._
 @import play.mvc._
 @import helper._
+@import tags._
 
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <title>@title</title>
-    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+
+    @stylesheetAsset("stylesheets/main.css")
+
     @currentUser.map { u =>
       @if(u.isAdmin) {
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/admin.css")">
+        @stylesheetAsset("stylesheets/admin.css")
       }
     }
+
     <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
 
-    <script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
-    <script src="@routes.Assets.at("javascripts/util.min.js")" type="text/javascript"></script>
+    @scriptAsset("javascripts/jquery-1.7.1.min.js")
+
+    @scriptAsset("javascripts/util.min.js")
+
     <!--
         Twitter Bootstrap integration. Adapted from
         https://github.com/playframework/Play20/wiki/Tips
@@ -30,16 +36,16 @@
         below, is (currently) the same as the that used by the Twitter
         Bootstrap Makefile, when it builds "bootstrap.js".
     -->
-    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")" />
+    @stylesheetAsset("stylesheets/bootstrap.min.css")
 
     @Seq("transition", "alert", "button", "carousel", "collapse", "dropdown",
          "modal", "tooltip", "popover", "scrollspy", "tab", "typeahead",
          "affix").map {name =>
-      <script src="@routes.Assets.at("javascripts/bootstrap/bootstrap-%s.min.js".format(name))"></script>
+      @scriptAsset("javascripts/bootstrap/bootstrap-%s.min.js".format(name))
     }
     <!-- END Twitter Bootstrap integration -->
 
-    <script src="@routes.Assets.at("javascripts/navbar.js")"></script>
+    @scriptAsset("javascripts/navbar.js")
 
     @additionalHead.map {html =>
       @html
