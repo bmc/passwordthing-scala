@@ -25,7 +25,7 @@
     <div id="edit-user-form" class="well">
       <div class="heading">Edit user @editUser.username</div>
 
-      @form(action = adminRoutes.UserAdmin.updateUser) {
+      @form(action = adminRoutes.UserAdmin.updateUser(editUser.id.get)) {
         @inputText(
           editForm("username"),
           args = 'size             -> 16,

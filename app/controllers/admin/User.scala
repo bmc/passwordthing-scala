@@ -49,8 +49,7 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
                                                          validPassword _)),
       "password_confirmation" -> optional(text.verifying(PasswordError,
                                                          validPassword _)),
-      "isAdmin"               -> boolean,
-      "id"                    -> longNumber
+      "isAdmin"               -> boolean
     )
     (applyForEdit)
     (unapplyForEdit)
@@ -70,7 +69,7 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
 
   /** Update a user in response to an edit operation.
     */
-  def updateUser = ActionWithAdminUser(parse.urlFormEncoded) {
+  def updateUser(id: Long) = ActionWithAdminUser(parse.urlFormEncoded) {
     currentUser => implicit request =>
 
     editUserForm.bindFromRequest.fold (
@@ -78,7 +77,6 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
       // Failure. Re-post.
       { form =>
 
-        val id = form("id").value.get.toInt
         User.findByID(id) match {
           case Left(error) =>
             Redirect(admin.routes.Admin.index()).
@@ -90,7 +88,10 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
       },
 
       { user =>
-        User.update(user) match {
+
+        // The ID isn't part of the form-built user. Use the case-class copy()
+        // functionality to copy one into place.
+        User.update(user.copy(id = Some(id))) match {
           case Left(error) =>
             val filledForm = editUserForm.fill(user)
             // Can't use "flashing" here, because the template will already
@@ -107,7 +108,7 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
             Ok(views.html.admin.edituser(user, currentUser, filledForm)(flash))
 
           case Right(worked:Boolean) =>
-            Redirect(admin.routes.UserAdmin.editUser(user.id.get)).
+            Redirect(admin.routes.UserAdmin.editUser(id)).
               flashing("info" -> "Saved.")
         }
       }
@@ -199,22 +200,19 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
   private def applyForEdit(name:                 String,
                            password:             Option[String],
                            passwordConfirmation: Option[String],
-                           isAdmin:              Boolean,
-                           id:                   Long) = {
+                           isAdmin:              Boolean) = {
     User(name,
          password.map {pw => User.encrypt(pw)}.getOrElse(""),
          password,
          passwordConfirmation,
-         isAdmin,
-         Some(id))
+         isAdmin)
   }
 
   private def unapplyForEdit(user: User) =
     Some((user.username, 
           user.password,
           user.passwordConfirmation,
-          user.isAdmin,
-          user.id.getOrElse(0.toLong)))
+          user.isAdmin))
 
   private def userJson(users: Seq[User], errorMessage: Option[String] = None) = {
     val usersMap = Json.toJson(users.map {_.toJson})
