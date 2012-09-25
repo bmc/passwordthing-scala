@@ -13,6 +13,10 @@ import controllers._
 trait Secured {
   self: Controller =>
 
+  // ----------------------------------------------------------------------
+  // Public methods
+  // ----------------------------------------------------------------------
+
   def username(request: RequestHeader) = request.session.get(Security.username)
 
   def onUnauthorized(request: RequestHeader) = Results.Forbidden
@@ -22,63 +26,48 @@ trait Secured {
 
   // Chain this to a controller action, e.g.:
   //
-  //    def index = withAuth { username => implicit request =>
+  //    def index = ActionWithUser { user => implicit request =>
   //      Ok(views.html.index(...))
   //    }
-  def withAuth(f: String => Request[AnyContent] => Result) = {
-    Security.Authenticated(username, onNeedLogin) { username =>
-      Action(request => f(username)(request))
-    }
+  def ActionWithUser(f: User => Request[Any] => Result) = withAuth {
+    username => implicit request =>
+
+    callBlockActionWithUser(username, request, f)
   }
 
-  // Version of withAuth() that accepts a BodyParser and passes it through
+  // Version of ActionWithUser() that accepts a BodyParser and passes it through
   // to the generated Action.
-  def withAuth[T](bodyParser: BodyParser[T])
-                 (f: String => Request[T] => Result) = {
-    Security.Authenticated(username, onNeedLogin) { username =>
-      Action(bodyParser)(request => f(username)(request))
+  def ActionWithUser[T](bodyParser: BodyParser[T])
+                       (f: User => Request[T] => Result) = {
+
+    withAuth(bodyParser) { username => implicit request =>
+      callBlockActionWithUser(username, request, f)
     }
   }
 
   // Chain this to a controller action, e.g.:
   //
-  //    def index = withUser { user => implicit request =>
+  //    def index = ActionWithAdminUser { user => implicit request =>
   //      Ok(views.html.index(...))
   //    }
-  def withUser(f: User => Request[Any] => Result) = withAuth {
-    username => implicit request =>
-
-    callBlockWithUser(username, request, f)
+  def ActionWithAdminUser(f: User => Request[Any] => Result) = {
+    ActionWithUser { user => implicit request =>
+      callIfAdmin(user, request, f)
+    }
   }
 
-  // Version of withUser() that accepts a BodyParser and passes it through
-  // to the generated Action.
-  def withUser[T](bodyParser: BodyParser[T])
-                 (f: User => Request[T] => Result) = withAuth(bodyParser) {
-    username => implicit request =>
-
-    callBlockWithUser(username, request, f)
+  // Version of ActionWithAdminUser() that accepts a BodyParser and passes it
+  // through to the generated Action.
+  def ActionWithAdminUser[T](bodyParser: BodyParser[T])
+                            (f: User => Request[Any] => Result) = {
+    ActionWithUser(bodyParser) { user => implicit request =>
+      callIfAdmin(user, request, f)
+    }
   }
 
-  // Chain this to a controller action, e.g.:
-  //
-  //    def index = withAdminUser { user => implicit request =>
-  //      Ok(views.html.index(...))
-  //    }
-  def withAdminUser(f: User => Request[Any] => Result) = withUser {
-    user => implicit request =>
-
-    callIfAdmin(user, request, f)
-  }
-
-  // Version of withAdminUser() that accepts a BodyParser and passes it through
-  // to the generated Action.
-  def withAdminUser[T](bodyParser: BodyParser[T])
-                      (f: User => Request[Any] => Result) = withUser(bodyParser) {
-    user => implicit request =>
-
-    callIfAdmin(user, request, f)
-  }
+  // ----------------------------------------------------------------------
+  // Private methods
+  // ----------------------------------------------------------------------
 
   private def callIfAdmin[T](user: User,
                              request: Request[T],
@@ -93,7 +82,7 @@ trait Secured {
     }
   }
 
-  private def callBlockWithUser[T](username: String,
+  private def callBlockActionWithUser[T](username: String,
                                    request: Request[T],
                                    f: User => Request[T] => Result) = {
     // Map the user name to the user, and pass it to the block.
@@ -105,4 +94,20 @@ trait Secured {
         f(user)(request)
     }
   }
+
+  private def withAuth(f: String => Request[AnyContent] => Result) = {
+    Security.Authenticated(username, onNeedLogin) { username =>
+      Action(request => f(username)(request))
+    }
+  }
+
+  // Version of withAuth() that accepts a BodyParser and passes it through
+  // to the generated Action.
+  private def withAuth[T](bodyParser: BodyParser[T])
+                 (f: String => Request[T] => Result) = {
+    Security.Authenticated(username, onNeedLogin) { username =>
+      Action(bodyParser)(request => f(username)(request))
+    }
+  }
+
 }

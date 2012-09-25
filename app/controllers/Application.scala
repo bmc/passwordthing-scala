@@ -12,7 +12,7 @@ import controllers.util._
 
 object Application extends Controller with Secured {
   
-  def index = withUser { user => implicit request =>
+  def index = ActionWithUser { user => implicit request =>
     Ok(views.html.index(user))
   }
 
@@ -20,7 +20,9 @@ object Application extends Controller with Secured {
 
   def newSite = myToDo()
 
-  def myToDo(message: String = "") = withUser { user => implicit request =>
-    Ok(views.html.mytodo(message, user))
+  def myToDo(message: String = "") = {
+    ActionWithUser { user => implicit request =>
+      Ok(views.html.mytodo(message, user))
+    }
   }
 }

@@ -21,7 +21,7 @@ trait ModelUtil {
     * The result of the call to the apply() method is the right-hand side.
     */
   def executeQuery[T](sql: SimpleSql[Row])
-                     (code: Stream[Row] => Either[String,T]): Either[String, T] = {
+                     (code: Stream[Row] => Either[String,T]): Either[String,T] = {
     try {
       DB.withConnection { implicit connection =>
         code(sql())

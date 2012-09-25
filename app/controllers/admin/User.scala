@@ -35,7 +35,7 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
   // Actions
   // ----------------------------------------------------------------------
 
-  def listUsers = withAdminUser { user => implicit request =>
+  def listUsers = ActionWithAdminUser { user => implicit request =>
     User.all match {
       case Left(error)  => Ok(userJson(Nil, Some(error)))
       case Right(users) => Ok(userJson(users))
@@ -59,7 +59,7 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
 
   /** Display the form to edit an existing user.
     */
-  def editUser(id: Long) = withAdminUser { currentUser => implicit request =>
+  def editUser(id: Long) = ActionWithAdminUser { currentUser => implicit request =>
     User.findByID(id) match {
       case Left(error) =>
         Redirect(admin.routes.Admin.index()).flashing("error" -> error)
@@ -70,7 +70,7 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
 
   /** Update a user in response to an edit operation.
     */
-  def updateUser = withAdminUser(parse.urlFormEncoded) {
+  def updateUser = ActionWithAdminUser(parse.urlFormEncoded) {
     currentUser => implicit request =>
 
     editUserForm.bindFromRequest.fold (
@@ -129,43 +129,43 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
 
   /** Display the form to edit an existing user.
     */
-  def newUser = withAdminUser { currentUser => implicit request =>
+  def newUser = ActionWithAdminUser { currentUser => implicit request =>
     Ok(views.html.admin.newuser(currentUser, newUserForm))
   }
 
   /** Update a user in response to an edit operation.
     */
-  def createUser = withAdminUser(parse.urlFormEncoded) {
-    currentUser => implicit request =>
+  def createUser = {
+    ActionWithAdminUser(parse.urlFormEncoded) { currentUser => implicit request =>
+      newUserForm.bindFromRequest.fold (
 
-    newUserForm.bindFromRequest.fold (
+        // Failure. Re-post.
+        { form =>
+  
+          BadRequest(views.html.admin.newuser(currentUser, form))
+        },
 
-      // Failure. Re-post.
-      { form =>
-
-        BadRequest(views.html.admin.newuser(currentUser, form))
-      },
-
-      { user =>
-        User.create(user.username, user.password.get, user.isAdmin) match {
-          case Left(error) =>
+        { user =>
+          User.create(user.username, user.password.get, user.isAdmin) match {
+            case Left(error) =>
             val filledForm = newUserForm.fill(user)
             val flash = Flash(Map("error" -> error))
             Ok(views.html.admin.newuser(currentUser, filledForm)(flash))
 
-          case Right(dbUser) => {
-            Redirect(admin.routes.UserAdmin.editUser(dbUser.id.get)).
+            case Right(dbUser) => {
+              Redirect(admin.routes.UserAdmin.editUser(dbUser.id.get)).
               flashing("info" -> "Saved.")
+            }
           }
         }
-      }
-    )
+      )
+    }
   }
 
   /**
     * Delete a user by ID.
     */
-  def deleteUser(id: Long) = withAdminUser { currentUser => implicit request =>
+  def deleteUser(id: Long) = ActionWithAdminUser { currentUser => implicit request =>
     User.delete(id) match {
       case Left(error) => Ok(userJson(Nil, Some(error)))
       case Right(bool) =>

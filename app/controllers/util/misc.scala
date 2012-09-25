@@ -9,7 +9,9 @@ import models._
 trait ControllerUtil {
   self: Controller with Secured =>
 
-  def myToDo(message: String = "") = withUser { user => implicit request =>
-    Ok(views.html.mytodo(message, user))
+  def myToDo(message: String = "") = {
+    ActionWithUser { user => implicit request =>
+      Ok(views.html.mytodo(message, user))
+    }
   }
 }
