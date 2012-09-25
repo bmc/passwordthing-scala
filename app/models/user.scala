@@ -11,6 +11,10 @@ case class User(username:             String,
                 isAdmin:              Boolean,
                 id:                   Option[Long] = None) {
 
+  // Helpful for creation
+  def this(username: String, password: String, isAdmin: Boolean) =
+    this(username, "", Some(password), Some(password), isAdmin)
+
   // Convert this user object to JSON (a JsValue, not a string). To
   // convert this result to a JSON string, use this code:
   //
@@ -79,29 +83,20 @@ object User extends ModelUtil {
   def create(user: User): Either[String, User] = {
     withDBConnection { implicit connection =>
       val sql = SQL(
-        """
-        INSERT INTO appusers(username, encrypted_password, is_admin)
-        VALUES({name}, {pw}, {admin})
-        """
-      ).on(
-        "name"  -> user.username,
-        "pw"    -> encrypt(user.password.getOrElse("")),
-        "admin" -> encodeBoolean(user.isAdmin)
-      )
+        """|INSERT INTO appusers(username, encrypted_password, is_admin)
+           |VALUES({name}, {pw}, {admin})""".stripMargin).
+        on("name"  -> user.username,
+           "pw"    -> encrypt(user.password.getOrElse("")),
+           "admin" -> encodeBoolean(user.isAdmin))
 
-      sql.executeInsert()
-
-      // Reload, to get the ID.
-      findByName(user.username) match {
-        case Left(error) =>
-          val msg = "Couldn't reload user after save: %s".format(error)
-          Logger.error(msg)
-          Left(msg)
-
-        case Right(user) =>
-          Right(user)
+      // Note that executeInsert() will return the primary key.
+      // See http://stackoverflow.com/questions/9859700/
+      sql.executeInsert() match {
+        // Yes, I know I should map() here. This is more readable.
+        case Some(id) => Right(user.copy(id = Some(id)))
+        case None     => Left("No ID returned from database INSERT")
       }
-    }
+    } 
   }
 
   def update(user: User): Either[String, Boolean] = {

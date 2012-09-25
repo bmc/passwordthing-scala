@@ -4,14 +4,24 @@ import play.api.libs.Crypto
 import play.api.Logger
 import play.api.libs.json._
 
-case class Site(name:                 String,
-                username:             Option[String],
-                email:                Option[String],
-                password:             Option[String],
-                url:                  Option[String],
-                notes:                Option[String],
-                userID:               Long,
-                id:                   Option[Long] = None) {
+case class Site(name:     String,
+                username: Option[String],
+                email:    Option[String],
+                password: Option[String],
+                url:      Option[String],
+                notes:    Option[String],
+                userID:   Long,
+                id:       Option[Long] = None) {
+
+  // Useful when creating.
+  def this(name:     String,
+           user:     User,
+           username: Option[String] = None,
+           email:    Option[String] = None,
+           password: Option[String] = None,
+           url:      Option[String] = None) = {
+    this(name, username, email, password, url, None, user.id.get)
+  }
 
   // Convert this site object to JSON (a JsValue, not a string). To
   // convert this result to a JSON string, use this code:
@@ -26,6 +36,7 @@ case class Site(name:                 String,
       "password" -> Json.toJson(password.getOrElse("")),
       "notes"    -> Json.toJson(notes.getOrElse("")),
       "userID"   -> Json.toJson(userID),
+      "url"      -> Json.toJson(url.getOrElse("")),
       "id"       -> Json.toJson(id.getOrElse(-1.toLong))
     )
   )
@@ -65,6 +76,30 @@ object Site extends ModelUtil {
   def all: Either[String, Seq[Site]] = {
     executeQuery(SQL("SELECT * FROM sites ORDER BY name")) { results =>
       Right(results.toList.map {decodeSite _})
+    }
+  }
+
+  def create(site: Site, forUser: User): Either[String, Site] = {
+    withDBConnection { implicit connection =>
+      val sql = SQL(
+        """|INSERT INTO sites(name, username, email, password, notes, user_id, url)
+           |VALUES({name}, {username}, {email}, {pw}, {notes}, {uid}, {url})""".
+           stripMargin).
+        on("name"     -> site.name,
+           "username" -> site.username,
+           "email"    -> site.email,
+           "pw"       -> site.password,
+           "notes"    -> site.notes,
+           "url"      -> site.url,
+           "uid"      -> forUser.id.get)
+
+      // Note that executeInsert() will return the primary key.
+      // See http://stackoverflow.com/questions/9859700/
+      sql.executeInsert() match {
+        // Yes, I know I should map() here. This is more readable.
+        case Some(id) => Right(site.copy(id = Some(id)))
+        case None     => Left("No ID returned from database INSERT")
+      }
     }
   }
 
