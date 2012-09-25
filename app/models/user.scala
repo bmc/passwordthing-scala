@@ -51,7 +51,6 @@ object User extends ModelUtil {
   def findByID(id: Long): Either[String, User] = {
     DB.withConnection { implicit connection =>
       val query = SQL("SELECT * FROM user WHERE id = {id}").on("id" -> id)
-      Logger.debug(sqlToString(query))
 
       query.apply().map {decodeUser _}.toList match {
         case user :: users :: Nil => Left("(BUG) Multiple users match that ID!")
@@ -85,7 +84,6 @@ object User extends ModelUtil {
         "admin" -> encodeBoolean(user.isAdmin)
       )
 
-      Logger.debug(sqlToString(sql))
       sql.executeInsert()
 
       // Reload, to get the ID.

@@ -15,14 +15,6 @@ trait ModelUtil {
     */
   def encodeBoolean(value: Boolean) = if (value) 1 else 0
 
-  /** Convert a SQL object, as returned by Anorm, to something more readable
-    * (and loggable) than the regular SQL.toString method.
-    */
-  def sqlToString(sql: SimpleSql[Row]) = {
-    sql.sql.query + " -> [" + 
-    sql.params.map {t => t._1 + "=" + t._2.aValue}.mkString(", ") +
-    "]"
-  }
 
   /** Execute a SQL query, logging it at DEBUG level. Any SQL exceptions
     * are appropriate mapped and returned as the left-hand value.
@@ -31,7 +23,6 @@ trait ModelUtil {
   def executeQuery[T](sql: SimpleSql[Row])
                      (code: Stream[Row] => Either[String,T]): Either[String, T] = {
     try {
-      Logger.debug(sqlToString(sql))
       DB.withConnection { implicit connection =>
         code(sql())
       }
