@@ -7,3 +7,5 @@ tmp
 dist
 *.sqlite3
 *.db
+databases
+.envrc
