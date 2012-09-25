@@ -60,7 +60,7 @@ It's relatively simple to roll your own. See, for instance:
 
 [Cross-site Request Forgery]: http://en.wikipedia.org/wiki/Cross-site_request_forgery
 
-## Flash messages
+### Flash messages
 
 The documentation for getting flash messages (see
 <http://www.playframework.org/documentation/2.0/ScalaSessionFlash>) is
@@ -101,6 +101,23 @@ A specific view could then be defined like this:
 
       ...
 
+### Logging SQL Statements
+
+It's not sufficient to enable the feature via this configuration directive:
+
+    db.default.logStatements: true
+
+You must also use the more flexible `conf/logger.xml` [Logback][]
+configuration, so you can specify a log level for the underlying [BoneCP][]
+connection pool component.
+
+For details see:
+
+* <http://www.playframework.org/documentation/2.0/SettingsLogger>
+* <http://stackoverflow.com/questions/9371907/>
+
+[Logback]: http://logback.qos.ch/
+[BoneCP]: http://jolbox.com/
 
 ## Possible Enhancements
 
