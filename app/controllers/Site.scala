@@ -40,7 +40,7 @@ object SiteController extends Controller with Secured with ControllerUtil {
         ObjectAccessDenied(routes.SiteController.index())
 
       case Right(site) =>
-        Ok(views.html.site(currentUser, site))
+        Ok(views.html.sites.show(currentUser, site))
     }
   }
 

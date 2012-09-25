@@ -37,12 +37,13 @@ POST    /site/:id/delete       controllers.SiteController.delete(id: Long)
 # ---------------------------------------------------------------------------
 # Admin Routes
 
-GET     /admin                 controllers.admin.Admin.index
-POST    /admin/users           controllers.admin.UserAdmin.listUsers
-GET     /admin/user/:id/edit   controllers.admin.UserAdmin.editUser(id: Long)
-POST    /admin/user/$id<\d+>   controllers.admin.UserAdmin.updateUser(id: Long)
-GET     /admin/user/new        controllers.admin.UserAdmin.newUser
-POST    /admin/user/create     controllers.admin.UserAdmin.createUser
+GET     /admin                 controllers.AdminController.index
+GET     /users                 controllers.UserController.index
+POST    /users                 controllers.UserController.list
+GET     /user/:id/edit         controllers.UserController.edit(id: Long)
+POST    /user/$id<\d+>         controllers.UserController.update(id: Long)
+GET     /user/new              controllers.UserController.makeNew
+POST    /user/create           controllers.UserController.create
 
 # For true RESTfulness, this next route should really be:
 #
@@ -51,7 +52,7 @@ POST    /admin/user/create     controllers.admin.UserAdmin.createUser
 # However, I'm cheating and using POST with a "delete" in the actual path,
 # because it's invoked via AJAX, and using jQuery.post() is easier than
 # cobbling up a true DELETE out of jQuery.ajax().
-POST    /admin/user/:id/delete controllers.admin.UserAdmin.deleteUser(id: Long)
+POST    /admin/user/:id/delete controllers.UserController.delete(id: Long)
 
 # ---------------------------------------------------------------------------
 # Static asset routes

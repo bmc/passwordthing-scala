@@ -1,4 +1,4 @@
-package controllers.admin
+package controllers
 
 import play.api._
 import play.api.mvc._
@@ -9,12 +9,11 @@ import play.api.libs.json.Json
 import models.User._
 import models._
 
-import controllers._
 import controllers.util._
 
 // Not the real user. Only used internally.
 
-object UserAdmin extends Controller with Secured with ControllerUtil {
+object UserController extends Controller with Secured with ControllerUtil {
 
   // ----------------------------------------------------------------------
   // Constants
@@ -35,7 +34,12 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
   // Actions
   // ----------------------------------------------------------------------
 
-  def listUsers = ActionWithAdminUser { user => implicit request =>
+  def index = ActionWithAdminUser { currentUser => implicit request =>
+    Ok(views.html.users.index(currentUser))
+  }
+
+  def list = ActionWithAdminUser { currentUser => implicit request =>
+Logger.debug("*** User.list")
     User.all match {
       case Left(error)  => Ok(userJson(Nil, Some(error)))
       case Right(users) => Ok(userJson(users))
@@ -58,18 +62,18 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
 
   /** Display the form to edit an existing user.
     */
-  def editUser(id: Long) = ActionWithAdminUser { currentUser => implicit request =>
+  def edit(id: Long) = ActionWithAdminUser { currentUser => implicit request =>
     User.findByID(id) match {
       case Left(error) =>
-        Redirect(admin.routes.Admin.index()).flashing("error" -> error)
+        Redirect(routes.UserController.index()).flashing("error" -> error)
       case Right(user) =>
-        Ok(views.html.admin.edituser(user, currentUser, editUserForm.fill(user)))
+        Ok(views.html.users.edit(user, currentUser, editUserForm.fill(user)))
     }
   }
 
   /** Update a user in response to an edit operation.
     */
-  def updateUser(id: Long) = {
+  def update(id: Long) = {
     ActionWithAdminUser(parse.urlFormEncoded) {
       currentUser => implicit request =>
 
@@ -80,11 +84,11 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
   
           User.findByID(id) match {
             case Left(error) =>
-              Redirect(admin.routes.Admin.index()).
+              Redirect(routes.UserController.index()).
                 flashing("error" -> ("Can't to find user with ID " + id))
   
             case Right(user) =>
-              BadRequest(views.html.admin.edituser(user, currentUser, form))
+              BadRequest(views.html.users.edit(user, currentUser, form))
           }
         },
 
@@ -106,10 +110,10 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
               //     implicit val flash = Flash(Map(...))
               //     Ok(views.html.admin.edituser(...))
               val flash = Flash(Map("error" -> error))
-              Ok(views.html.admin.edituser(user, currentUser, filledForm)(flash))
+              Ok(views.html.users.edit(user, currentUser, filledForm)(flash))
 
             case Right(worked:Boolean) =>
-              Redirect(admin.routes.UserAdmin.editUser(id)).
+              Redirect(routes.UserController.edit(id)).
                 flashing("info" -> "Saved.")
           }
         }
@@ -132,20 +136,20 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
 
   /** Display the form to edit an existing user.
     */
-  def newUser = ActionWithAdminUser { currentUser => implicit request =>
-    Ok(views.html.admin.newuser(currentUser, newUserForm))
+  def makeNew = ActionWithAdminUser { currentUser => implicit request =>
+    Ok(views.html.users.makeNew(currentUser, newUserForm))
   }
 
   /** Update a user in response to an edit operation.
     */
-  def createUser = {
+  def create = {
     ActionWithAdminUser(parse.urlFormEncoded) { currentUser => implicit request =>
       newUserForm.bindFromRequest.fold (
 
         // Failure. Re-post.
         { form =>
   
-          BadRequest(views.html.admin.newuser(currentUser, form))
+          BadRequest(views.html.users.makeNew(currentUser, form))
         },
 
         { user =>
@@ -153,10 +157,10 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
             case Left(error) =>
             val filledForm = newUserForm.fill(user)
             val flash = Flash(Map("error" -> error))
-            Ok(views.html.admin.newuser(currentUser, filledForm)(flash))
+            Ok(views.html.users.makeNew(currentUser, filledForm)(flash))
 
             case Right(dbUser) => {
-              Redirect(admin.routes.UserAdmin.editUser(dbUser.id.get)).
+              Redirect(routes.UserController.edit(dbUser.id.get)).
               flashing("info" -> "Saved.")
             }
           }
@@ -168,7 +172,7 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
   /**
     * Delete a user by ID.
     */
-  def deleteUser(id: Long) = ActionWithAdminUser { currentUser => implicit request =>
+  def delete(id: Long) = ActionWithAdminUser { currentUser => implicit request =>
     User.delete(id) match {
       case Left(error) => Ok(userJson(Nil, Some(error)))
       case Right(bool) =>

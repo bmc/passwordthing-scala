@@ -1,25 +1,24 @@
-@(currentUser: User, newUserForm: Form[models.User])(implicit flash: Flash)
+@(editUser: User, currentUser: User, editForm: Form[models.User])(implicit flash: Flash)
 
 @import helper._
 @import helper.twitterBootstrap._
-@import controllers.admin.{routes => adminRoutes}
 
 @head = {
-  <script src="@routes.Assets.at("javascripts/admin.min.js")"></script>
+  <script src="@routes.Assets.at("javascripts/admin.js")"></script>
 }
 
-@main("New User", additionalHead = Some(head), currentUser = Some(currentUser)) {
+@main("Edit User", additionalHead = Some(head), currentUser = Some(currentUser)) {
 
   <div class="span12">
-    @form_errors(newUserForm)
-    @back(adminRoutes.Admin.index(), "Back to admin")
+    @form_errors(editForm)
+    @back(routes.UserController.index(), "Back")
 
-    <div id="new-user-form" class="well">
-      <div class="heading">Create a new user</div>
+    <div id="edit-user-form" class="well">
+      <div class="heading">Edit user @editUser.username</div>
 
-      @form(action = adminRoutes.UserAdmin.createUser) {
+      @form(action = routes.UserController.update(editUser.id.get)) {
         @inputText(
-          newUserForm("username"),
+          editForm("username"),
           args = 'size             -> 16,
                  'id               -> "username",
                  '_label           -> "Username",
@@ -27,7 +26,7 @@
                  '_placeholder     -> "user name"
         )
         @inputPassword(
-          newUserForm("password"),
+          editForm("password"),
           args = 'size             -> 16,
                  'id               -> "password",
                  '_label           -> "Password",
@@ -35,7 +34,7 @@
                  '_placeholder     -> "password"
         )
         @inputPassword(
-          newUserForm("password_confirmation"),
+          editForm("password_confirmation"),
           args = 'size             -> 16,
                  'id               -> "password-confirmation",
                  '_label           -> "Password (again)",
@@ -43,10 +42,11 @@
                  '_placeholder     -> "password (again)"
         )
         @checkbox(
-          newUserForm("isAdmin"),
+          editForm("isAdmin"),
           args = 'id               -> "is-admin",
                  '_label           -> "Administrator"
         )
+        <input type="hidden" name="id" value="@editUser.id"/>
 
         <div id="buttons">
           <button class="btn btn-primary">Save</button>

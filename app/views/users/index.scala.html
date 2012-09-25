@@ -1,7 +1,5 @@
 @(currentUser: User)(implicit flash: Flash)
 
-@import controllers.admin.{routes => adminRoutes}
-
 @head = {
   <script src="@routes.Assets.at("javascripts/admin.js")" type="text/javascript"></script>
 }
@@ -16,11 +14,11 @@
         <ul class="actions">
           <li>
             <a id="list-users" href="javascript:void(0)"
-               data-url="@adminRoutes.UserAdmin.listUsers()">List all users</a>
+               data-url="@routes.UserController.list()">List all users</a>
           </li>
           <li>
             <a id="new-user"
-               href="@adminRoutes.UserAdmin.newUser()">New user</a>
+               href="@routes.UserController.makeNew()">New user</a>
           </li>
         </ul>
       </div>
@@ -52,11 +50,11 @@
             <td class="field-value user-admin"></td>
             <td>
               <a class="btn btn-mini edit-user-button action-button"
-                 href="@adminRoutes.UserAdmin.editUser(-1)"> 
+                 href="@routes.UserController.edit(-1)"> 
                 Edit
               </a>
               <a class="btn btn-mini delete-user-button action-button"
-                 href="@adminRoutes.UserAdmin.deleteUser(-1)">
+                 href="@routes.UserController.delete(-1)">
                 Delete
               </a>
             </td>

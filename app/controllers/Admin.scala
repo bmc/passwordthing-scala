@@ -1,4 +1,4 @@
-package controllers.admin
+package controllers
 
 import play.api._
 import play.api.mvc._
@@ -14,8 +14,8 @@ import controllers.util._
 /** Main admin controller. Each model that can be administered has its own
   * controller.
   */
-object Admin extends Controller with Secured with ControllerUtil {
+object AdminController extends Controller with Secured with ControllerUtil {
   def index = ActionWithAdminUser { currentUser => implicit request =>
-    Ok(views.html.admin.index(currentUser))
+    Ok(views.html.users.index(currentUser))
   }
 }

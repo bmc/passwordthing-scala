@@ -6,7 +6,6 @@
 @import play._
 @import play.mvc._
 @import helper._
-@import controllers.admin.{routes => adminRoutes}
 
 <!DOCTYPE html>
 
@@ -64,7 +63,7 @@
 
               @if(user.isAdmin) {
                 <li>
-                  <a href="@adminRoutes.Admin.index()">
+                  <a href="@routes.AdminController.index()">
                     <i class="icon-wrench"></i>Admin
                   </a>
                 </li>
