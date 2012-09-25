@@ -154,11 +154,12 @@ Logger.debug("*** User.list")
         },
 
         { user =>
+
           User.create(user) match {
             case Left(error) =>
-            val filledForm = newUserForm.fill(user)
-            val flash = Flash(Map("error" -> error))
-            Ok(views.html.users.makeNew(currentUser, filledForm)(flash))
+              val filledForm = newUserForm.fill(user)
+              val flash = Flash(Map("error" -> error))
+              Ok(views.html.users.makeNew(currentUser, filledForm)(flash))
 
             case Right(dbUser) => {
               Redirect(routes.UserController.edit(dbUser.id.get)).
