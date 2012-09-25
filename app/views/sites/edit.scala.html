@@ -16,7 +16,7 @@
     <div id="edit-site-form" class="well">
       <div class="heading">Edit user @site.name</div>
 
-      @form(action = routes.Application.updateSite(site.id.get)) {
+      @form(action = routes.SiteController.update(site.id.get)) {
         @inputText(
           editForm("name"),
           args = 'id               -> "name",

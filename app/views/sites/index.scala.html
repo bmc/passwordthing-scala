@@ -14,10 +14,10 @@
         <ul class="actions">
           <li>
             <a id="list-sites" href="javascript:void(0)"
-               data-url="@routes.Application.listSites()">List all sites</a>
+               data-url="@routes.SiteController.list()">List all sites</a>
           </li>
           <li>
-            <a id="new-site" href="@routes.Application.newSite()">New site</a>
+            <a id="new-site" href="@routes.SiteController.makeNew()">New site</a>
           </li>
         </ul>
       </div>
@@ -56,15 +56,15 @@
               <td class="field-value site-password"></td>
               <td>
                 <a class="btn btn-mini show-site-button action-button"
-                   href="@routes.Application.showSite(-1)"> 
+                   href="@routes.SiteController.show(-1)"> 
                   Details
                 </a>
                 <a class="btn btn-mini edit-site-button action-button"
-                   href="@routes.Application.editSite(-1)"> 
+                   href="@routes.SiteController.edit(-1)"> 
                   Edit
                 </a>
                 <a class="btn btn-mini delete-site-button action-button"
-                   href="@routes.Application.deleteSite(-1)">
+                   href="@routes.SiteController.delete(-1)">
                   Delete
                 </a>
               </td>

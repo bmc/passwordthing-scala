@@ -17,12 +17,13 @@ GET     /logout                controllers.Auth.logout
 # ---------------------------------------------------------------------------
 # Site password routes
 
-POST    /sites                 controllers.Application.listSites
-GET     /site/new              controllers.Application.newSite
-POST    /site/create           controllers.Application.createSite
-GET     /site/:id/edit         controllers.Application.editSite(id: Long)
-GET     /site/$id<\d+>         controllers.Application.showSite(id: Long)
-POST    /site/$id<\d+>         controllers.Application.updateSite(id: Long)
+GET     /sites                 controllers.SiteController.index
+POST    /sites/list            controllers.SiteController.list
+GET     /site/new              controllers.SiteController.makeNew
+POST    /site/create           controllers.SiteController.create
+GET     /site/:id/edit         controllers.SiteController.edit(id: Long)
+GET     /site/$id<\d+>         controllers.SiteController.show(id: Long)
+POST    /site/$id<\d+>         controllers.SiteController.update(id: Long)
 
 # For true RESTfulness, this next route should really be:
 #
@@ -31,7 +32,7 @@ POST    /site/$id<\d+>         controllers.Application.updateSite(id: Long)
 # However, I'm cheating and using POST with a "delete" in the actual path,
 # because it's invoked via AJAX, and using jQuery.post() is easier than
 # cobbling up a true DELETE out of jQuery.ajax().
-POST    /site/:id/delete       controllers.Application.deleteSite(id: Long)
+POST    /site/:id/delete       controllers.SiteController.delete(id: Long)
  
 # ---------------------------------------------------------------------------
 # Admin Routes
