@@ -44,6 +44,41 @@ trait ModelUtil {
     }
   }
 
+  /** Execute a hunk of code within a transaction. This can be used in place
+    * of withDBConnection.
+    * 
+    * The transaction is committed, unless an exception is thrown or the
+    * code returns Left(error).
+    */
+  def withTransaction[T](code: java.sql.Connection => Either[String,T]):
+  Either[String, T] = {
+    val connection = play.db.DB.getConnection
+    val autoCommit = connection.getAutoCommit
+
+    try {
+      connection.setAutoCommit(false)
+      val result = code(connection)
+      result match {
+        case Left(error)  => throw new Exception(error)
+        case Right(_)     => connection.commit()
+      }
+
+      result
+    }
+
+    catch {
+      case e: Throwable =>
+        connection.rollback()
+        val msg = "Error, rolling back transaction: " + e.getMessage
+        Logger.error(msg)
+        Left(msg)
+    }
+
+    finally {
+      connection.setAutoCommit(autoCommit)
+    }
+  }
+
   /** Convert a boolean for storage in the database. Assumes the lowest
     * common denominator type, namely, integer.
     */

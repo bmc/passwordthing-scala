@@ -69,50 +69,52 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
 
   /** Update a user in response to an edit operation.
     */
-  def updateUser(id: Long) = ActionWithAdminUser(parse.urlFormEncoded) {
-    currentUser => implicit request =>
+  def updateUser(id: Long) = {
+    ActionWithAdminUser(parse.urlFormEncoded) {
+      currentUser => implicit request =>
 
-    editUserForm.bindFromRequest.fold (
+      editUserForm.bindFromRequest.fold (
 
-      // Failure. Re-post.
-      { form =>
+        // Failure. Re-post.
+        { form =>
+  
+          User.findByID(id) match {
+            case Left(error) =>
+              Redirect(admin.routes.Admin.index()).
+                flashing("error" -> ("Can't to find user with ID " + id))
+  
+            case Right(user) =>
+              BadRequest(views.html.admin.edituser(user, currentUser, form))
+          }
+        },
 
-        User.findByID(id) match {
-          case Left(error) =>
-            Redirect(admin.routes.Admin.index()).
-              flashing("error" -> ("Unable to find user with ID " + id.toString))
+        { user =>
 
-          case Right(user) =>
-            BadRequest(views.html.admin.edituser(user, currentUser, form))
+          // The ID isn't part of the form-built user. Use the case-class copy()
+          // functionality to copy one into place.
+          User.update(user.copy(id = Some(id))) match {
+            case Left(error) =>
+              val filledForm = editUserForm.fill(user)
+              // Can't use "flashing" here, because the template will already
+              // have been rendered by the time Ok is called. Instead, create
+              // our own flash object and pass it to the template.
+              //
+              // This COULD be done with an implicit parameter, but using an
+              // implicit parameter leads to less obvious code. Here's how,
+              // though:
+              //
+              //     implicit val flash = Flash(Map(...))
+              //     Ok(views.html.admin.edituser(...))
+              val flash = Flash(Map("error" -> error))
+              Ok(views.html.admin.edituser(user, currentUser, filledForm)(flash))
+
+            case Right(worked:Boolean) =>
+              Redirect(admin.routes.UserAdmin.editUser(id)).
+                flashing("info" -> "Saved.")
+          }
         }
-      },
-
-      { user =>
-
-        // The ID isn't part of the form-built user. Use the case-class copy()
-        // functionality to copy one into place.
-        User.update(user.copy(id = Some(id))) match {
-          case Left(error) =>
-            val filledForm = editUserForm.fill(user)
-            // Can't use "flashing" here, because the template will already
-            // have been rendered by the time Ok is called. Instead, create
-            // our own flash object and pass it to the template.
-            //
-            // This COULD be done with an implicit parameter, but using an
-            // implicit parameter leads to less obvious code. Here's how,
-            // though:
-            //
-            //     implicit val flash = Flash(Map(...))
-            //     Ok(views.html.admin.edituser(...))
-            val flash = Flash(Map("error" -> error))
-            Ok(views.html.admin.edituser(user, currentUser, filledForm)(flash))
-
-          case Right(worked:Boolean) =>
-            Redirect(admin.routes.UserAdmin.editUser(id)).
-              flashing("info" -> "Saved.")
-        }
-      }
-    )
+      )
+    }
   }
 
   val newUserForm = Form(

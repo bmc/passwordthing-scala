@@ -11,16 +11,8 @@
 @main("New User", additionalHead = Some(head), currentUser = Some(currentUser)) {
 
   <div class="span12">
-    @newUserForm.globalError.map { error =>
-      <div class="alert alert-error">
-        <button type="button" class="close" data-dismiss="alert">x</button>
-        @error.message
-      </div>
-    }
-
-    <a href="@adminRoutes.Admin.index()" class="btn btn-link">
-      <i class="icon-arrow-left"></i> Back to admin
-    </a>
+    @form_errors(newUserForm)
+    @back(adminRoutes.Admin.index(), "Back to admin")
 
     <div id="new-user-form" class="well">
       <div class="heading">Create a new user</div>

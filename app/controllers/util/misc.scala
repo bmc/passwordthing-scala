@@ -14,4 +14,12 @@ trait ControllerUtil {
       Ok(views.html.mytodo(message, user))
     }
   }
+
+  def ObjectNotFound(redirectTo: Call)(implicit request: RequestHeader) = {
+    Results.Redirect(redirectTo).flashing("error" -> "Not found.")
+  }
+
+  def ObjectAccessDenied(redirectTo: Call)(implicit request: RequestHeader) = {
+    Results.Redirect(redirectTo).flashing("error" -> "Access denied.")
+  }
 }

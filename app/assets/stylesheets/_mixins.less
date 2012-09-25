@@ -1,18 +1,19 @@
 
 // LESS mixin: Inline form rules. Assumes Twitter Bootstrap helper has
 // been hauled into the template.
-.inline-form () {
+.inline-form (@inputWidth: 70%, @labelWidth: 20%) {
   form {
     text-align: left;
 
     label {
-      width: 20% !important;
+      width: @labelWidth !important;
       display: inline-block;
       text-align: right;
       color: black;
     }
 
     .input {
+      width: @inputWidth !important;
       display: inline-block;
 
       .help-inline {
@@ -23,6 +24,10 @@
 
       .help-block {
         display: none;
+      }
+
+      input, textarea {
+        width: 90% !important;
       }
     }
 
@@ -77,5 +82,20 @@
 
   #loader {
     float: right;
+  }
+}
+
+.standard-edit-form (@width: 50%, @buttonBarWidth: 15%) {
+
+  .inline-form;
+
+  .heading {
+    .heading-styles;
+  }
+
+  .centered (@width);
+
+  #buttons {
+    .form-button-bar (@buttonBarWidth);
   }
 }

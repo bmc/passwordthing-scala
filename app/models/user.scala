@@ -132,9 +132,9 @@ object User extends ModelUtil {
   }
 
   def delete(id: Long): Either[String, Boolean] = {
-    withDBConnection { implicit connection =>
-      val sql = SQL("DELETE FROM appusers WHERE id = {id}").on("id" -> id)
-      sql.executeUpdate()
+    withTransaction { implicit connection =>
+      SQL("DELETE FROM sites WHERE user_id = {id}").on("id" -> id).executeUpdate()
+      SQL("DELETE FROM appusers WHERE id = {id}").on("id" -> id).executeUpdate()
       Right(true)
     }
   }

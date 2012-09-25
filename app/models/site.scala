@@ -23,6 +23,8 @@ case class Site(name:     String,
     this(name, username, email, password, url, None, user.id.get)
   }
 
+  // Get the user associated with this site.
+
   // Convert this site object to JSON (a JsValue, not a string). To
   // convert this result to a JSON string, use this code:
   //
@@ -100,6 +102,29 @@ object Site extends ModelUtil {
         case Some(id) => Right(site.copy(id = Some(id)))
         case None     => Left("No ID returned from database INSERT")
       }
+    }
+  }
+
+  def update(site: Site): Either[String, Boolean] = {
+    // flatMap() unpacks an Option, but expects one back. Thus, it's a
+    // simple way to conditionally convert a Some("") into a None.
+    val sql = SQL(
+      """|UPDATE sites SET name = {name}, username = {username},
+         |email = {email}, password = {password}, url = {url}, notes = {notes}
+         |WHERE id = {id} AND user_id = {uid}""".stripMargin).
+      on("name"     -> site.name,
+         "username" -> site.username,
+         "email"    -> site.email,
+         "password" -> site.password,
+         "url"      -> site.email,
+         "notes"    -> site.notes,
+         "uid"      -> site.userID,
+         "id"       -> site.id.get
+      )
+
+    withDBConnection { implicit connection =>
+      sql.executeUpdate()
+      Right(true)
     }
   }
 
