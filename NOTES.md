@@ -121,6 +121,12 @@ For details see:
 
 ## Databases
 
+### SQLite
+
+[SQLite][] works just fine. The lack of ability to do an
+`ALTER TABLE DROP COLUMN` can be worked around, when necessary, by use of
+intermediate tables.
+
 ### H2
 
 I had all kinds of problems with database corruptions when using a file-based

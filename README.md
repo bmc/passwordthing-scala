@@ -13,6 +13,10 @@ based database. Among other things, it's easier to store a file-based
 database on an encrypted partition, which isn't a bad thing for a database
 that contains web site passwords.
 
+The configuration file expects environment variable `DBPATH` will be set
+to the full path to the SQLite database. You'll need to set that variable
+before starting Play.
+
 Of course, you're welcome to use some other database. I've used this app
 with [SQLite][], [PostgreSQL][], [H2][] (sort of), and [Derby][].
 
