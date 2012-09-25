@@ -1,0 +1,42 @@
+@(currentUser: User, site: Site)(implicit flash: Flash)
+
+@head = {
+  <script src="@routes.Assets.at("javascripts/site.min.js")"></script>
+}
+
+@main(site.name, additionalHead = Some(head), currentUser = Some(currentUser)) {
+  <div class="span12">
+    <form id="site-display" class="well">
+      <header>Site: @site.name</header>
+      <div class="field">
+        <label class="field-label">Web site:</label>
+        <input type="text" readonly="true" class="field-value"
+               value="@site.url.getOrElse("")"/>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Email:</label>
+        <input type="text" readonly="true" class="field-value"
+               value="@site.email.getOrElse("")"/>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Username:</label>
+        <input type="text" readonly="true" class="field-value"
+               value="@site.username.getOrElse("")"/>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Password:</label>
+        <input type="text" readonly="true" class="field-value"
+               value="@site.password.getOrElse("")"/>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Notes:</label>
+        <textarea disabled="true" rows="10" 
+                  class="field-value">@site.notes.getOrElse("")</textarea>
+      </div>
+    </form>
+  </div>
+}

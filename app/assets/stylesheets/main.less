@@ -45,6 +45,24 @@ body {
   }
 }
 
+.captioned-table {
+  // Twitter Bootstrap border radius rounds the <thead> and the
+  // <tbody>, but the caption sits above them. Since we're rounding
+  // the caption top, alter what Twitter Bootstrap does with its borders.
+  border-radius: 0px 0px 5px 5px;
+
+  caption {
+    background: darken(@wellBackground, 10%);
+    font-weight: bold;
+    font-size: @baseFontSize + 6px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    // Top-only border radius
+    border-radius: 5px 5px 0px 0px;
+  }
+}
+
 #content {
   margin-top: @navbarHeight + 20px;
 
@@ -79,8 +97,36 @@ body {
       }
     }
   }
+}
 
-  table#sites {
-    .captioned-table;
+#site-display {
+  .centered (40%);
+
+  header {
+    text-align: center;
+    font-size: @baseFontSize + 5px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .field {
+    .field-label {
+      display: inline-block;
+      font-weight: bold;
+      min-width: 30px !important;
+      width: 20% !important;
+      text-align: left;
+    }
+
+    .field-value {
+      display: inline-block;
+      width: 70%;
+      max-width: 70% !important;
+    }
+
+    textarea.field-value:first-line {
+      margin-left: 0;
+      white-space: normal;
+    }
   }
 }

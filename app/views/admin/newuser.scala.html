@@ -5,7 +5,7 @@
 @import controllers.admin.{routes => adminRoutes}
 
 @head = {
-  <script src="@routes.Assets.at("javascripts/admin.js")"></script>
+  <script src="@routes.Assets.at("javascripts/admin.min.js")"></script>
 }
 
 @main("New User", additionalHead = Some(head), currentUser = Some(currentUser)) {

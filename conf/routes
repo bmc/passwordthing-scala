@@ -2,21 +2,40 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+# ---------------------------------------------------------------------------
 # Home page
+
 GET     /                      controllers.Application.index
 
-# Site password routes
-GET     /sites                 controllers.Application.listSites
-GET     /site/new              controllers.Application.newSite
-POST    /site/create           controllers.Application.createSite
-GET     /site/:id/edit         controllers.Application.editSite(id: Long)
-POST    /site/$id<\d+>         controllers.Application.updateSite(id: Long)
-POST    /site/$id<\d+>         controllers.Application.updateSite(id: Long)
+# ---------------------------------------------------------------------------
+# Login routes
 
 POST    /sign-in               controllers.Auth.authenticate
 GET     /login                 controllers.Auth.login
 GET     /logout                controllers.Auth.logout
+
+# ---------------------------------------------------------------------------
+# Site password routes
+
+POST    /sites                 controllers.Application.listSites
+GET     /site/new              controllers.Application.newSite
+POST    /site/create           controllers.Application.createSite
+GET     /site/:id/edit         controllers.Application.editSite(id: Long)
+GET     /site/$id<\d+>         controllers.Application.showSite(id: Long)
+POST    /site/$id<\d+>         controllers.Application.updateSite(id: Long)
+
+# For true RESTfulness, this next route should really be:
+#
+#     DELETE /site/:id
+#
+# However, I'm cheating and using POST with a "delete" in the actual path,
+# because it's invoked via AJAX, and using jQuery.post() is easier than
+# cobbling up a true DELETE out of jQuery.ajax().
+POST    /site/:id/delete       controllers.Application.deleteSite(id: Long)
  
+# ---------------------------------------------------------------------------
+# Admin Routes
+
 GET     /admin                 controllers.admin.Admin.index
 POST    /admin/users           controllers.admin.UserAdmin.listUsers
 GET     /admin/user/:id/edit   controllers.admin.UserAdmin.editUser(id: Long)
@@ -32,6 +51,9 @@ POST    /admin/user/create     controllers.admin.UserAdmin.createUser
 # because it's invoked via AJAX, and using jQuery.post() is easier than
 # cobbling up a true DELETE out of jQuery.ajax().
 POST    /admin/user/:id/delete controllers.admin.UserAdmin.deleteUser(id: Long)
+
+# ---------------------------------------------------------------------------
+# Static asset routes
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file         controllers.Assets.at(path="/public", file)

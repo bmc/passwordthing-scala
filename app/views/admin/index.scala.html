@@ -3,7 +3,7 @@
 @import controllers.admin.{routes => adminRoutes}
 
 @head = {
-  <script src="@routes.Assets.at("javascripts/admin.js")"></script>
+  <script src="@routes.Assets.at("javascripts/admin.js")" type="text/javascript"></script>
 }
 
 @main("Admin", additionalHead = Some(head), currentUser = Some(currentUser)) {
@@ -29,7 +29,8 @@
     <div class="span10">
       <!-- User display -->
       <div id="current-user" data-id="@currentUser.id.get" style="display:none"></div>
-      <table id="users" class="table table-hover table-bordered"
+      <table id="users"
+             class="table table-hover table-bordered captioned-table"
              style="display:none">
         <caption>Users</caption>
         <thead>

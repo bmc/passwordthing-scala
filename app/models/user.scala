@@ -27,7 +27,6 @@ case class User(username:             String,
 
 object User extends ModelUtil {
   import anorm._
-  import play.api.db.DB
   import play.api.Play.current
 
   /** Find a user by name. Returns the user object (Right(User)) or a log
@@ -38,25 +37,17 @@ object User extends ModelUtil {
     val query = SQL(
        "SELECT * FROM users WHERE username = {name}"
     ).on("name" -> name)
-    executeQuery(query) { results =>
 
-      results.map {decodeUser _}.toList match {
-        case user :: users :: Nil => Left("(BUG) Multiple users match username!")
-        case (user:User) :: Nil   => Right(user)
-        case Nil                  => Left("Unknown user: \"" + name + "\"")
-      }
+    executeQuery(query) { results =>
+      Right(results.map {decodeUser _}.toList.head)
     }
   }
 
   def findByID(id: Long): Either[String, User] = {
-    DB.withConnection { implicit connection =>
-      val query = SQL("SELECT * FROM users WHERE id = {id}").on("id" -> id)
+    val query = SQL("SELECT * FROM users WHERE id = {id}").on("id" -> id)
 
-      query.apply().map {decodeUser _}.toList match {
-        case user :: users :: Nil => Left("(BUG) Multiple users match that ID!")
-        case user :: Nil          => Right(user)
-        case Nil                  => Left("Unknown user ID: \"" + id + "\"")
-      }
+    executeQuery(query) { results =>
+      Right(results.map {decodeUser _}.toList.head)
     }
   }
 
@@ -152,6 +143,6 @@ object User extends ModelUtil {
          None,
          None,
          row[Boolean]("is_admin"),
-         Some(row[Int]("id")))
+         Some(row[Long]("id")))
   }
 }

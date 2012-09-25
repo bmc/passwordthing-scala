@@ -10,8 +10,9 @@ create table sites(
     id serial primary key,
     user_id integer not null,
     name varchar(255) not null,
-    url varchar(255),
+    username varchar(255),
     email varchar(255),
+    url varchar(255),
     password varchar(255),
     notes text
 );
