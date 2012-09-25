@@ -181,6 +181,55 @@ console:
       last_problem long varchar
     )
 
+## Anorm
+
+Anorm doesn't provide a built-in way to handle database transactions, but
+this approach works. It assumes the caller will pass a block of code that
+returns `Left(errorMessage)` on error and `Right(something: T)` on success.
+
+    def withTransaction[T](code: java.sql.Connection => Either[String,T]): Eiher[String, T] = {
+      val connection = play.db.DB.getConnection
+      val autoCommit = connection.getAutoCommit
+ 
+      try {
+        connection.setAutoCommit(false)
+        val result = code(connection)
+        result match {
+          case Left(error)  => throw new Exception(error)
+          case Right(_)     => connection.commit()
+        }
+
+        result
+      }
+
+      catch {
+        case e: Throwable =>
+          connection.rollback()
+          val msg = "Error, rolling back transaction: " + e.getMessage
+          Logger.error(msg)
+          Left(msg)
+      }
+
+      finally {
+        connection.setAutoCommit(autoCommit)
+      }
+    }
+
+Example of use:
+
+    def delete(id: Long): Either[String, Boolean] = {
+      withTransaction { implicit connection =>
+        SQL("DELETE FROM comments WHERE article_id = {id}").on("id" -> id).
+          executeUpdate()
+        SQL("DELETE FROM article WHERE id = {id}").on("id" -> id).
+          executeUpdate( )
+        Right(true)
+      }
+    }
+
+
+### Transactions in Anorm
+
 ## Possible Enhancements
 
 * Add CSRF support.
