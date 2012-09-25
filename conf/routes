@@ -16,10 +16,15 @@ GET     /logout                controllers.Auth.logout
 GET     /admin                 controllers.admin.Admin.index
 POST    /admin/users           controllers.admin.UserAdmin.listUsers
 GET     /admin/user/:id/edit   controllers.admin.UserAdmin.editUser(id: Long)
-POST    /admin/user/:id        controllers.admin.UserAdmin.updateUser(id: Long)
+POST    /admin/user/$id<\d+>   controllers.admin.UserAdmin.updateUser(id: Long)
 GET     /admin/user/new        controllers.admin.UserAdmin.newUser
 POST    /admin/user/create     controllers.admin.UserAdmin.createUser
-DELETE  /admin/user/:id/delete controllers.admin.UserAdmin.deleteUser(id: Long)
+
+# Ideally, this next verb should be DELETE, for true RESTfulness. However,
+# I'm cheating and using POST, because it's invoked via AJAX, and using
+# jQuery.post() is easier than cobbling up a true DELETE out of jQuery.ajax().
+
+POST    /admin/user/:id/delete controllers.admin.UserAdmin.deleteUser(id: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file         controllers.Assets.at(path="/public", file)

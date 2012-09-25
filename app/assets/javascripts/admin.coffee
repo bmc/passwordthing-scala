@@ -53,6 +53,7 @@ $(document).ready ->
 
     deleteConfirmed = ->
       $("#loader").show()
+      console.log "Posting to #{url}"
       $.post(url, null, handleDeleteResponse, "json")
 
     window.confirm("Really delete the user?", deleteConfirmed)
