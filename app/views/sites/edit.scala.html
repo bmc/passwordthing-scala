@@ -1,7 +1,9 @@
 @(site: Site, currentUser: User, editForm: Form[models.Site])(implicit flash: Flash)
 
+@import tags._
+
 @head = {
-  <script src="@routes.Assets.at("javascripts/sites.min.js")" type="text/javascript"></script>
+  @scriptAsset("javascripts/sites.min.js")
 }
 
 @main("Main", additionalHead = Some(head), currentUser = Some(currentUser)) {

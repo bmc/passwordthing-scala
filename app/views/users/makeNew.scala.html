@@ -1,10 +1,9 @@
 @(currentUser: User, newUserForm: Form[models.User])(implicit flash: Flash)
 
-@import helper._
-@import helper.twitterBootstrap._
+@import tags._
 
 @head = {
-  <script src="@routes.Assets.at("javascripts/users.min.js")"></script>
+  @scriptAsset("javascripts/users.min.js")
 }
 
 @main("New User", additionalHead = Some(head), currentUser = Some(currentUser)) {

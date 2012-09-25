@@ -2,9 +2,10 @@
 
 @import helper._
 @import helper.twitterBootstrap._
+@import tags._
 
 @head = {
-  <script src="@routes.Assets.at("javascripts/sites.min.js")"></script>
+  @scriptAsset("javascripts/sites.min.js")
 }
 
 @main("New User", additionalHead = Some(head), currentUser = Some(currentUser)) {

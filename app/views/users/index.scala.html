@@ -1,7 +1,9 @@
 @(currentUser: User)(implicit flash: Flash)
 
+@import tags._
+
 @head = {
-  <script src="@routes.Assets.at("javascripts/users.min.js")" type="text/javascript"></script>
+  @scriptAsset("javascripts/users.min.js")
 }
 
 @main("Admin", additionalHead = Some(head), currentUser = Some(currentUser)) {
