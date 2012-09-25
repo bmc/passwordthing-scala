@@ -76,11 +76,7 @@ object User extends ModelUtil {
     }
   }
 
-  def create(name: String,
-             password: String,
-             isAdmin: Boolean): Either[String, User] = {
-
-    val user = User(name, encrypt(password), None, None, isAdmin)
+  def create(user: User): Either[String, User] = {
     withDBConnection { implicit connection =>
       val sql = SQL(
         """
@@ -89,14 +85,14 @@ object User extends ModelUtil {
         """
       ).on(
         "name"  -> user.username,
-        "pw"    -> user.encryptedPassword,
+        "pw"    -> encrypt(user.password.getOrElse("")),
         "admin" -> encodeBoolean(user.isAdmin)
       )
 
       sql.executeInsert()
 
       // Reload, to get the ID.
-      findByName(name) match {
+      findByName(user.username) match {
         case Left(error) =>
           val msg = "Couldn't reload user after save: %s".format(error)
           Logger.error(msg)
@@ -110,7 +106,7 @@ object User extends ModelUtil {
 
   def update(user: User): Either[String, Boolean] = {
     // flatMap() unpacks an Option, but expects one back. Thus, it's a
-    // simply way to conditionally convert a Some("") into a None.
+    // simple way to conditionally convert a Some("") into a None.
     val sql = user.password.flatMap { pw =>
       if (pw == "") None else Some(pw)
     }.map { pw =>

@@ -147,7 +147,7 @@ object UserAdmin extends Controller with Secured with ControllerUtil {
         },
 
         { user =>
-          User.create(user.username, user.password.get, user.isAdmin) match {
+          User.create(user) match {
             case Left(error) =>
             val filledForm = newUserForm.fill(user)
             val flash = Flash(Map("error" -> error))
