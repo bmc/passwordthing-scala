@@ -18,7 +18,14 @@ object Application extends Controller with Secured {
   // ----------------------------------------------------------------------
 
   def index = ActionWithUser { currentUser => implicit request =>
-    Ok(views.html.index(currentUser))
+    Site.count(currentUser) match {
+      case Left(error) =>
+        val flash = Flash(Map("error" -> error))
+        Ok(views.html.index(currentUser)(flash))
+
+      case Right(count) =>
+        Ok(views.html.index(currentUser, Some(count)))
+    }
   }
 
   def listSites = ActionWithUser { currentUser => implicit request =>

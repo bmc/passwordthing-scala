@@ -1,4 +1,4 @@
-@(currentUser: User)(implicit flash: Flash)
+@(currentUser: User, count: Option[Long] = None)(implicit flash: Flash)
 
 @head = {
   <script src="@routes.Assets.at("javascripts/site.min.js")" type="text/javascript"></script>
@@ -24,48 +24,54 @@
     </div>
 
     <div class="span7">
+      <div id="main-panel">
+        @count.map { n =>
+          @{ val noun = if (n == 1) "site" else "sites"
+          <h3>You have {n} {noun} on file.</h3> }
+        }
+      
       <!-- Site display -->
-      <table id="sites"
-             class="table table-hover table-bordered captioned-table"
-             style="display:none">
-        <caption>Your Sites and Passwords</caption>
-        <thead>
-          <tr>
-            <th>Site Name</th>
-            <th>User Name</th>
-            <th>Email</th>
-            <th>Password</th>
-          </tr>
-          <!--
-            When handling the AJAX query for the list of users, the Javascript
-            clones this element for each user, appending it to the table. This
-            template must be here, rather than the <tbody>, because the <tbody>
-            is cleared with every request.
-          -->
-          <tr id="site-template" style="display:none">
-            <td class="field-value site-name"></td>
-            <td class="field-value site-username"></td>
-            <td class="field-value site-email"></td>
-            <td class="field-value site-password"></td>
-            <td>
-              <a class="btn btn-mini show-site-button action-button"
-                 href="@routes.Application.showSite(-1)"> 
-                Details
-              </a>
-              <a class="btn btn-mini edit-site-button action-button"
-                 href="@routes.Application.editSite(-1)"> 
-                Edit
-              </a>
-              <a class="btn btn-mini delete-site-button action-button"
-                 href="@routes.Application.deleteSite(-1)">
-                Delete
-              </a>
-            </td>
-          </tr>
-        </thead>
-
-        <tbody id="site-list"></tbody>
-      </table>
+        <table id="sites"
+               class="table table-hover table-bordered captioned-table"
+               style="display:none">
+          <caption>Your Sites and Passwords</caption>
+          <thead>
+            <tr>
+              <th>Site Name</th>
+              <th>User Name</th>
+              <th>Email</th>
+              <th>Password</th>
+            </tr>
+            <!--
+              When handling the AJAX query for the list of users, the
+              Javascript clones this element for each site, appending
+              it to the table. This template must be here, rather than
+              the <tbody>, because the <tbody> is cleared with every request.
+            -->
+            <tr id="site-template" style="display:none">
+              <td class="field-value site-name"></td>
+              <td class="field-value site-username"></td>
+              <td class="field-value site-email"></td>
+              <td class="field-value site-password"></td>
+              <td>
+                <a class="btn btn-mini show-site-button action-button"
+                   href="@routes.Application.showSite(-1)"> 
+                  Details
+                </a>
+                <a class="btn btn-mini edit-site-button action-button"
+                   href="@routes.Application.editSite(-1)"> 
+                  Edit
+                </a>
+                <a class="btn btn-mini delete-site-button action-button"
+                   href="@routes.Application.deleteSite(-1)">
+                  Delete
+                </a>
+              </td>
+            </tr>
+          </thead>
+          <tbody id="site-list"></tbody>
+        </table>
+      </div>
     </div>
 
     <div class="span3">

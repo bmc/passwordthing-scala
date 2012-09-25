@@ -44,6 +44,15 @@ object Site extends ModelUtil {
     }
   }
 
+  def count(user: User): Either[String, Long] = {
+    val sql = SQL("SELECT COUNT(id) AS count FROM sites WHERE user_id = {id}").
+              on("id" -> user.id)
+
+    executeQuery(sql) { results =>
+      Right(results.map { row => row[Long]("count") }.toList.head)
+    }
+  }
+
   def allForUser(user: User): Either[String, Seq[Site]] = {
     val sql = SQL("SELECT * FROM sites WHERE user_id = {id} ORDER BY name").
               on("id" -> user.id)
