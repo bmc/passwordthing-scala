@@ -16,36 +16,7 @@
     <div id="new-user-form" class="well">
       <div class="heading">Create a new user</div>
 
-      @form(action = routes.UserController.create) {
-        @inputText(
-          newUserForm("username"),
-          args = 'size             -> 16,
-                 'id               -> "username",
-                 '_label           -> "Username",
-                 '_showConstraints -> false,
-                 '_placeholder     -> "user name"
-        )
-        @inputPassword(
-          newUserForm("password"),
-          args = 'size             -> 16,
-                 'id               -> "password",
-                 '_label           -> "Password",
-                 '_showConstraints -> false,
-                 '_placeholder     -> "password"
-        )
-        @inputPassword(
-          newUserForm("password_confirmation"),
-          args = 'size             -> 16,
-                 'id               -> "password-confirmation",
-                 '_label           -> "Password (again)",
-                 '_showConstraints -> false,
-                 '_placeholder     -> "password (again)"
-        )
-        @checkbox(
-          newUserForm("isAdmin"),
-          args = 'id               -> "is-admin",
-                 '_label           -> "Administrator"
-        )
+      @BasicUserForm(newUserForm, routes.UserController.create) {
 
         <div id="buttons">
           <button class="btn btn-primary">Save</button>

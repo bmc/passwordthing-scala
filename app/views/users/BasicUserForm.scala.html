@@ -1,0 +1,38 @@
+@(theForm: Form[models.User], action: Call)(extraContent: Html)
+
+@import helper._
+@import helper.twitterBootstrap._
+
+@form(action) {
+  @inputText(
+    theForm("username"),
+    args = 'size             -> 16,
+           'id               -> "username",
+           '_label           -> "Username",
+           '_showConstraints -> false,
+           '_placeholder     -> "user name"
+  )
+  @inputPassword(
+    theForm("password"),
+    args = 'size             -> 16,
+           'id               -> "password",
+           '_label           -> "Password",
+           '_showConstraints -> false,
+           '_placeholder     -> "password"
+  )
+  @inputPassword(
+    theForm("password_confirmation"),
+    args = 'size             -> 16,
+           'id               -> "password-confirmation",
+           '_label           -> "Password (again)",
+           '_showConstraints -> false,
+           '_placeholder     -> "password (again)"
+  )
+  @checkbox(
+    theForm("isAdmin"),
+    args = 'id               -> "is-admin",
+           '_label           -> "Administrator"
+  )
+
+  @extraContent
+}

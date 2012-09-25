@@ -16,37 +16,9 @@
     <div id="edit-user-form" class="well">
       <div class="heading">Edit user @editUser.username</div>
 
-      @form(action = routes.UserController.update(editUser.id.get)) {
-        @inputText(
-          editForm("username"),
-          args = 'size             -> 16,
-                 'id               -> "username",
-                 '_label           -> "Username",
-                 '_showConstraints -> false,
-                 '_placeholder     -> "user name"
-        )
-        @inputPassword(
-          editForm("password"),
-          args = 'size             -> 16,
-                 'id               -> "password",
-                 '_label           -> "Password",
-                 '_showConstraints -> false,
-                 '_placeholder     -> "password"
-        )
-        @inputPassword(
-          editForm("password_confirmation"),
-          args = 'size             -> 16,
-                 'id               -> "password-confirmation",
-                 '_label           -> "Password (again)",
-                 '_showConstraints -> false,
-                 '_placeholder     -> "password (again)"
-        )
-        @checkbox(
-          editForm("isAdmin"),
-          args = 'id               -> "is-admin",
-                 '_label           -> "Administrator"
-        )
-        <input type="hidden" name="id" value="@editUser.id"/>
+      @BasicUserForm(editForm, routes.UserController.update(editUser.id.get)) {
+
+        <input type="hidden" name="id" value="@editUser.id.get"/>
 
         <div id="buttons">
           <button class="btn btn-primary">Save</button>

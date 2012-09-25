@@ -81,7 +81,6 @@ Logger.debug("*** User.list")
 
         // Failure. Re-post.
         { form =>
-  
           User.findByID(id) match {
             case Left(error) =>
               Redirect(routes.UserController.index()).
@@ -94,11 +93,12 @@ Logger.debug("*** User.list")
 
         { user =>
 
+          val userAndID = user.copy(id = Some(id))
+
           // The ID isn't part of the form-built user. Use the case-class copy()
           // functionality to copy one into place.
-          User.update(user.copy(id = Some(id))) match {
+          User.update(userAndID) match {
             case Left(error) =>
-              val filledForm = editUserForm.fill(user)
               // Can't use "flashing" here, because the template will already
               // have been rendered by the time Ok is called. Instead, create
               // our own flash object and pass it to the template.
@@ -110,7 +110,8 @@ Logger.debug("*** User.list")
               //     implicit val flash = Flash(Map(...))
               //     Ok(views.html.admin.edituser(...))
               val flash = Flash(Map("error" -> error))
-              Ok(views.html.users.edit(user, currentUser, filledForm)(flash))
+              val filledForm = editUserForm.fill(userAndID)
+              Ok(views.html.users.edit(userAndID, currentUser, filledForm)(flash))
 
             case Right(worked:Boolean) =>
               Redirect(routes.UserController.edit(id)).
