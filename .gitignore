@@ -6,3 +6,4 @@ tmp
 .history
 dist
 *.sqlite3
+*.db
