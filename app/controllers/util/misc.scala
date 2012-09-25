@@ -9,12 +9,6 @@ import models._
 trait ControllerUtil {
   self: Controller with Secured =>
 
-  def myToDo(message: String = "") = {
-    ActionWithUser { user => implicit request =>
-      Ok(views.html.mytodo(message, user))
-    }
-  }
-
   def ObjectNotFound(redirectTo: Call)(implicit request: RequestHeader) = {
     Results.Redirect(redirectTo).flashing("error" -> "Not found.")
   }
