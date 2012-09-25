@@ -58,13 +58,4 @@ $(document).ready ->
     $.post(url, null, handleListResponse, "json")
     false
 
-  $(".help-inline").each (i) ->
-    text = $(this).text().trim()
-    if text?.length > 0
-      $(this).empty()
-      $(this).append("<i class='error-icon icon-warning-sign'></i>")
-      $(this).show()
-      $(this).popover
-        content: text
-        trigger: 'hover'
-        title:   '<b>Error in form</b>'
+  window.flagInlineFormErrors()

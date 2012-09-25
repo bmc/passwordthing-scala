@@ -48,3 +48,17 @@ window.flash = (type, msg) ->
   elem.find(".alert").addClass("alert-#{type}")
   $("#flash").empty().append(elem)
   elem.show()
+
+# Flag inline errors in a form by adjusting the ".help-inline" elements
+# that actually have content.
+window.flagInlineFormErrors = (title) ->
+  $(".help-inline").each (i) ->
+    text = $(this).text().trim()
+    if text?.length > 0
+      $(this).empty()
+      $(this).append("<i class='error-icon icon-warning-sign'></i>")
+      $(this).show()
+      $(this).popover
+        content: text
+        trigger: 'hover'
+        title:   "<b>#{title || "Error in form"}</b>"

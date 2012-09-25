@@ -1,0 +1,52 @@
+@(theForm: Form[models.Site], action: Call)(extraContent: Html)
+
+@import helper._
+@import helper.twitterBootstrap._
+
+@form(action) {
+  @inputText(
+    theForm("name"),
+    args = 'id               -> "name",
+           '_label           -> "Site Name",
+           '_showConstraints -> false,
+           '_placeholder     -> "A name for this site"
+  )
+  @inputText(
+    theForm("username"),
+    args = 'id               -> "username",
+           '_label           -> "Username",
+           '_showConstraints -> false,
+           '_placeholder     -> "user name"
+  )
+  @inputText(
+    theForm("email"),
+    args = 'id               -> "email",
+           '_label           -> "Email Address",
+           '_showConstraints -> false,
+           '_placeholder     -> "email addressed used with web site"
+  )
+  @inputText(
+    theForm("password"),
+    args = 'id               -> "password",
+           '_label           -> "Password",
+           '_showConstraints -> false,
+           '_placeholder     -> "password"
+  )
+  @inputText(
+    theForm("url"),
+    args = 'id               -> "url",
+           '_label           -> "Web site",
+           '_showConstraints -> false,
+           '_placeholder     -> "Web site URL"
+  )
+  @textarea(
+    theForm("notes"),
+    args = 'rows             -> 20,
+           'cols             -> 50,
+           'id               -> "notes",
+           '_label           -> "Notes",
+           '_showConstraints -> false
+  )
+
+  @extraContent
+}

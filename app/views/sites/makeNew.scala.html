@@ -1,0 +1,26 @@
+@(currentUser: User, newSiteForm: Form[models.Site])(implicit flash: Flash)
+
+@import helper._
+@import helper.twitterBootstrap._
+
+@head = {
+  <script src="@routes.Assets.at("javascripts/sites.min.js")"></script>
+}
+
+@main("New User", additionalHead = Some(head), currentUser = Some(currentUser)) {
+
+  <div class="span12">
+    @form_errors(newSiteForm)
+    @back(routes.SiteController.index(), "Back")
+
+    <div id="new-user-form" class="well">
+      <div class="heading">New site data</div>
+
+      @BasicSiteForm(newSiteForm, routes.SiteController.create) {
+        <div id="buttons">
+          <button class="btn btn-primary">Save</button>
+        </div>
+      }
+    </div>
+  </div>
+}

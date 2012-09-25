@@ -1,7 +1,7 @@
 @(currentUser: User, site: Site)(implicit flash: Flash)
 
 @head = {
-  <script src="@routes.Assets.at("javascripts/site.min.js")"></script>
+  <script src="@routes.Assets.at("javascripts/sites.min.js")"></script>
 }
 
 @main(site.name, additionalHead = Some(head), currentUser = Some(currentUser)) {

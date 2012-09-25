@@ -117,9 +117,49 @@ object SiteController extends Controller with Secured with ControllerUtil {
     }
   }
 
-  def makeNew = myToDo()
+  private val newSiteForm = Form(
+    mapping(
+      "name"         -> nonEmptyText,
+      "username"     -> optional(text),
+      "email"        -> optional(text),
+      "password"     -> optional(text),
+      "url"          -> optional(text),
+      "notes"        -> optional(text)
+    )
+    (applyForNew)(unapplyForNew)
+  )
 
-  def create = myToDo()
+  def makeNew = ActionWithUser { currentUser => implicit request => 
+    Ok(views.html.sites.makeNew(currentUser, newSiteForm))
+  }
+
+  def create = {
+    ActionWithUser(parse.urlFormEncoded) { currentUser => implicit request =>
+      newSiteForm.bindFromRequest.fold (
+
+        // Failure. Re-post.
+        { form =>
+  
+          BadRequest(views.html.sites.makeNew(currentUser, form))
+        },
+
+        { site =>
+
+          Site.create(site, currentUser) match {
+            case Left(error) =>
+              val filledForm = newSiteForm.fill(site)
+              val flash = Flash(Map("error" -> error))
+              Ok(views.html.sites.makeNew(currentUser, filledForm)(flash))
+
+            case Right(dbSite) => {
+              Redirect(routes.SiteController.edit(dbSite.id.get)).
+              flashing("info" -> "Saved.")
+            }
+          }
+        }
+      )
+    }
+  }
 
   def delete(id: Long) = myToDo()
 
@@ -145,6 +185,24 @@ object SiteController extends Controller with Secured with ControllerUtil {
           site.url,
           site.notes,
           site.userID))
+  }
+
+  private def applyForNew(name:     String,
+                          username: Option[String],
+                          email:    Option[String],
+                          password: Option[String],
+                          url:      Option[String],
+                          notes:    Option[String]) = {
+    Site(name, username, email, password, url, notes, -1)
+  }
+
+  private def unapplyForNew(site: Site) = {
+    Some((site.name,
+          site.username,
+          site.email,
+          site.password,
+          site.url,
+          site.notes))
   }
 
   private def siteJson(sites: Seq[Site], errorMessage: Option[String] = None) = {
