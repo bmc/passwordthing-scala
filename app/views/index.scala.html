@@ -1,4 +1,31 @@
 @(currentUser: User)(implicit flash: Flash)
 
 @main("Main", currentUser = Some(currentUser)) {
+  <div id="home">
+    <div class="span2">
+      <div class="sidebar well">
+        <header>Actions</header>
+        <ul class="actions">
+          <li>
+            <a id="list-sites" href="javascript:void(0)"
+               data-url="@routes.Application.listSites()">List all sites</a>
+          </li>
+          <li>
+            <a id="new-site" href="@routes.Application.newSite()">New site</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="span7">
+    </div>
+
+    <div class="span3">
+      <div id="site-search">
+        <form>
+          <i class="icon-search"></i><input type="text">
+        </form>
+      </div>
+    </div>
+  </div>
 }

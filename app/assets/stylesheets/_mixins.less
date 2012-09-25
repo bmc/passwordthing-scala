@@ -58,3 +58,38 @@
   margin-top: 10px;
   .centered (@width);
 }
+
+.sidebar-styles () {
+  header {
+    color: darken(@wellBackground, 40%);
+    font-weight: bold;
+    font-variant: small-caps;
+    text-transform: lowercase;
+    font-size: @baseFontSize + 4px;
+    margin-bottom: 20px !important;
+  }
+
+  .actions {
+    margin-top: 10px;
+    list-style-type: none;
+    margin-left: 0;
+  }
+}
+
+.captioned-table () {
+  // Twitter Bootstrap border radius rounds the <thead> and the
+  // <tbody>, but the caption sits above them. Since we're rounding
+  // the caption top, alter what Twitter Bootstrap does with its borders.
+  border-radius: 0px 0px 5px 5px;
+
+  caption {
+    background: darken(@wellBackground, 10%);
+    font-weight: bold;
+    font-size: @baseFontSize + 6px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    // Top-only border radius
+    border-radius: 5px 5px 0px 0px;
+  }
+}

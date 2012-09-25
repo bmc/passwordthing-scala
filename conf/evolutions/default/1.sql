@@ -1,23 +1,23 @@
 # --- !Ups
-create table user(
-    id integer primary key asc,
+create table users(
+    id serial primary key,
     username varchar(30) not null unique,
     encrypted_password varchar(255) not null,
-    is_admin integer not null default 0
+    is_admin boolean not null default false
 );
 
-create table site(
-    id integer primary key asc,
+create table sites(
+    id serial primary key,
     user_id integer not null,
     name varchar(255) not null,
-    url text,
-    email text,
-    password text,
+    url varchar(255),
+    email varchar(255),
+    password varchar(255),
     notes text
 );
 
 create table site_tags(
-    id integer primary key asc,
+    id serial primary key,
     site_id integer not null,
     tag varchar(255) not null
 );
@@ -25,5 +25,5 @@ create table site_tags(
 # --- !Downs
 
 drop table site_tags;
-drop table site;
-drop table user;
+drop table sites;
+drop table users;

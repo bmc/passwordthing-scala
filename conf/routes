@@ -6,8 +6,12 @@
 GET     /                      controllers.Application.index
 
 # Site password routes
-GET     /sites                 controllers.Application.sites
+GET     /sites                 controllers.Application.listSites
 GET     /site/new              controllers.Application.newSite
+POST    /site/create           controllers.Application.createSite
+GET     /site/:id/edit         controllers.Application.editSite(id: Long)
+POST    /site/$id<\d+>         controllers.Application.updateSite(id: Long)
+POST    /site/$id<\d+>         controllers.Application.updateSite(id: Long)
 
 POST    /sign-in               controllers.Auth.authenticate
 GET     /login                 controllers.Auth.login
@@ -20,10 +24,13 @@ POST    /admin/user/$id<\d+>   controllers.admin.UserAdmin.updateUser(id: Long)
 GET     /admin/user/new        controllers.admin.UserAdmin.newUser
 POST    /admin/user/create     controllers.admin.UserAdmin.createUser
 
-# Ideally, this next verb should be DELETE, for true RESTfulness. However,
-# I'm cheating and using POST, because it's invoked via AJAX, and using
-# jQuery.post() is easier than cobbling up a true DELETE out of jQuery.ajax().
-
+# For true RESTfulness, this next route should really be:
+#
+#     DELETE /admin/user/:id
+#
+# However, I'm cheating and using POST with a "delete" in the actual path,
+# because it's invoked via AJAX, and using jQuery.post() is easier than
+# cobbling up a true DELETE out of jQuery.ajax().
 POST    /admin/user/:id/delete controllers.admin.UserAdmin.deleteUser(id: Long)
 
 # Map static resources from the /public folder to the /assets URL path

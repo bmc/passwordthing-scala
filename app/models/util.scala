@@ -7,15 +7,6 @@ import play.api.Play.current
 
 trait ModelUtil {
 
-  /** Encode a boolean value for storage in the database.
-    */
-  def decodeBoolean(value: Int) = if (value == 0) false else true
-
-  /** Decode a boolean value read from the database.
-    */
-  def encodeBoolean(value: Boolean) = if (value) 1 else 0
-
-
   /** Execute a SQL query, logging it at DEBUG level. Any SQL exceptions
     * are appropriate mapped and returned as the left-hand value.
     * The result of the call to the apply() method is the right-hand side.

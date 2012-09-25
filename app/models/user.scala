@@ -36,7 +36,7 @@ object User extends ModelUtil {
     */
   def findByName(name: String): Either[String, User] = {
     val query = SQL(
-       "SELECT * FROM user WHERE username = {name}"
+       "SELECT * FROM users WHERE username = {name}"
     ).on("name" -> name)
     executeQuery(query) { results =>
 
@@ -50,7 +50,7 @@ object User extends ModelUtil {
 
   def findByID(id: Long): Either[String, User] = {
     DB.withConnection { implicit connection =>
-      val query = SQL("SELECT * FROM user WHERE id = {id}").on("id" -> id)
+      val query = SQL("SELECT * FROM users WHERE id = {id}").on("id" -> id)
 
       query.apply().map {decodeUser _}.toList match {
         case user :: users :: Nil => Left("(BUG) Multiple users match that ID!")
@@ -62,7 +62,7 @@ object User extends ModelUtil {
 
   // Retrieve all users in the database, ordered by name.
   def all: Either[String, Seq[User]] = {
-    executeQuery(SQL("SELECT * FROM user ORDER BY username")) { results =>
+    executeQuery(SQL("SELECT * FROM users ORDER BY username")) { results =>
       Right(results.toList.map {decodeUser _})
     }
   }
@@ -75,13 +75,13 @@ object User extends ModelUtil {
     withDBConnection { implicit connection =>
       val sql = SQL(
         """
-        INSERT INTO user(username, encrypted_password, is_admin)
+        INSERT INTO users(username, encrypted_password, is_admin)
         VALUES({name}, {pw}, {admin})
         """
       ).on(
         "name"  -> user.username,
         "pw"    -> user.encryptedPassword,
-        "admin" -> encodeBoolean(user.isAdmin)
+        "admin" -> user.isAdmin
       )
 
       sql.executeInsert()
@@ -106,21 +106,21 @@ object User extends ModelUtil {
       if (pw == "") None else Some(pw)
     }.map { pw =>
       // Within this block, we know we actually have a password.
-      SQL("""|UPDATE user
+      SQL("""|UPDATE users
              |SET username = {name}, encrypted_password = {pw},
              |is_admin = {admin}
              |WHERE id = {id}""".stripMargin).
       on("name"  -> user.username,
          "pw"    -> encrypt(pw),
-         "admin" -> encodeBoolean(user.isAdmin),
+         "admin" -> user.isAdmin,
          "id"    -> user.id.get
       )
     }.getOrElse(
       // Within this block, we know we don't.
-      SQL("""|UPDATE user SET username = {name}, is_admin = {admin}
+      SQL("""|UPDATE users SET username = {name}, is_admin = {admin}
              |WHERE id = {id}""".stripMargin).
       on("name"  -> user.username,
-         "admin" -> encodeBoolean(user.isAdmin),
+         "admin" -> user.isAdmin,
          "id"    -> user.id.get
       )
     )
@@ -133,7 +133,7 @@ object User extends ModelUtil {
 
   def delete(id: Long): Either[String, Boolean] = {
     withDBConnection { implicit connection =>
-      val sql = SQL("DELETE FROM user WHERE id = {id}").on("id" -> id)
+      val sql = SQL("DELETE FROM users WHERE id = {id}").on("id" -> id)
       sql.executeUpdate()
       Right(true)
     }
@@ -151,7 +151,7 @@ object User extends ModelUtil {
          row[String]("encrypted_password"),
          None,
          None,
-         decodeBoolean(row[Int]("is_admin")),
+         row[Boolean]("is_admin"),
          Some(row[Int]("id")))
   }
 }

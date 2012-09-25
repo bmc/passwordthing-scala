@@ -16,9 +16,17 @@ object Application extends Controller with Secured {
     Ok(views.html.index(user))
   }
 
-  def sites = myToDo()
+  def listSites = ActionWithUser { user => implicit request =>
+    Redirect(routes.Application.index())
+  }
+
+  def editSite(id: Long) = myToDo()
+
+  def updateSite(id: Long) = myToDo()
 
   def newSite = myToDo()
+
+  def createSite = myToDo()
 
   def myToDo(message: String = "") = {
     ActionWithUser { user => implicit request =>

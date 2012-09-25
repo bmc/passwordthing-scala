@@ -8,12 +8,12 @@
 
 @main("Admin", additionalHead = Some(head), currentUser = Some(currentUser)) {
   <div id="admin">
-    <div class="span3">
-      <div id="sidebar" class="well">
+    <div class="span2">
+      <div class="sidebar well">
         <img src="@routes.Assets.at("images/loading.gif")"
              id="loader" style="display:none">
         <header>Actions</header>
-        <ul id="actions">
+        <ul class="actions">
           <li>
             <a id="list-users" href="javascript:void(0)"
                data-url="@adminRoutes.UserAdmin.listUsers()">List all users</a>
@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <div class="span9">
+    <div class="span10">
       <!-- User display -->
       <div id="current-user" data-id="@currentUser.id.get" style="display:none"></div>
       <table id="users" class="table table-hover table-bordered"
