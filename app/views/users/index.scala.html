@@ -16,7 +16,7 @@
         <ul class="actions">
           <li>
             <a id="list-users" href="javascript:void(0)"
-               data-url="@routes.UserController.list()">List all users</a>
+               data-url="@routes.UserController.listJSON()">List all users</a>
           </li>
           <li>
             <a id="new-user"
@@ -35,8 +35,9 @@
         <caption>Users</caption>
         <thead>
           <tr>
-            <th>ID</th>
             <th>Username</th>
+            <th>Name</th>
+            <th>Email</th>
             <th>Administrator?</th>
             <th>Actions</th>
           </tr>
@@ -47,8 +48,9 @@
             is cleared with every request.
           -->
           <tr id="user-template" style="display:none">
-            <td class="field-value user-id"></td>
             <td class="field-value user-username"></td>
+            <td class="field-value user-name"></td>
+            <td class="field-value user-email"></td>
             <td class="field-value user-admin"></td>
             <td>
               <a class="edit-user-button action-button"

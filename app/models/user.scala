@@ -25,9 +25,12 @@ case class User(username:             String,
   //     Json.stringify(user.toJson)
   def toJson = Json.toJson(
     Map(
-      "username" -> Json.toJson(username),
-      "isAdmin"  -> Json.toJson(isAdmin),
-      "id"       -> Json.toJson(id.getOrElse(-1.toLong))
+      "username"   -> Json.toJson(username),
+      "email"      -> Json.toJson(email),
+      "first_name" -> Json.toJson(firstName),
+      "last_name"  -> Json.toJson(lastName),
+      "is_admin"   -> Json.toJson(isAdmin),
+      "id"         -> Json.toJson(id.getOrElse(-1.toLong))
     )
   )
 }

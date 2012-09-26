@@ -38,7 +38,7 @@ object UserController extends Controller with Secured with ControllerUtil {
     Ok(views.html.users.index(currentUser))
   }
 
-  def list = ActionWithAdminUser { currentUser => implicit request =>
+  def listJSON = ActionWithAdminUser { currentUser => implicit request =>
     User.all.fold(
       { error => Ok(userJson(Nil, Some(error))) },
       { users => Ok(userJson(users)) }
@@ -105,10 +105,9 @@ object UserController extends Controller with Secured with ControllerUtil {
 
         { user =>
 
-          val userAndID = user.copy(id = Some(id))
-println("*** userAndID=" + userAndID)
           // The ID isn't part of the form-built user. Use the case-class copy()
           // functionality to copy one into place.
+          val userAndID = user.copy(id = Some(id))
           User.update(userAndID).fold(
             { error =>
 

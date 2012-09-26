@@ -43,7 +43,7 @@ POST    /site/:id/delete       controllers.SiteController.delete(id: Long)
 
 GET     /admin                 controllers.AdminController.index
 GET     /users                 controllers.UserController.index
-POST    /users                 controllers.UserController.list
+GET     /users/json            controllers.UserController.listJSON
 GET     /user/:id/edit         controllers.UserController.edit(id: Long)
 POST    /user/$id<\d+>         controllers.UserController.update(id: Long)
 GET     /user/new              controllers.UserController.makeNew

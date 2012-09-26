@@ -9,9 +9,11 @@ $(document).ready ->
     $.each(users, (i) ->
       userID = this["id"]
       newElem = $("#user-template").clone()
-      newElem.find(".user-username").append(this["username"])
-      newElem.find(".user-id").append(userID)
-      admin = if this["isAdmin"] then "Y" else "N"
+      newElem.find(".user-username").append(this.username)
+      name = [this.first_name, this.last_name].join(" ").trim()
+      newElem.find(".user-name").append(name)
+      newElem.find(".user-email").append(this.email)
+      admin = if this.is_admin then "Y" else "N"
       newElem.find(".user-admin").append(admin)
 
       # Edit the URL for the action buttons, replacing the -1 placeholder
@@ -67,8 +69,7 @@ $(document).ready ->
 
     $("#users").hide()
     $("#loader").show()
-    $.post(url, null, handleListResponse, "json")
+    $.get(url, null, handleListResponse, "json")
     false
 
-  
   window.flagInlineFormErrors()
