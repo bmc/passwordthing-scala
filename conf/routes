@@ -25,6 +25,7 @@ GET     /site/:id/edit         controllers.SiteController.edit(id: Long)
 GET     /site/$id<\d+>         controllers.SiteController.show(id: Long)
 GET     /site/$id<\d+>/json    controllers.SiteController.showJSON(id: Long)
 POST    /site/$id<\d+>         controllers.SiteController.update(id: Long)
+GET     /sites/download        controllers.SiteController.download
 
 # Assumes that "q" is passed as a query string parameter.
 GET     /site/search           controllers.SiteController.search(q)

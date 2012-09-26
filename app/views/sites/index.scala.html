@@ -39,7 +39,13 @@
         <table id="sites"
                class="table table-hover table-bordered captioned-table"
                style="display:none">
-          <caption>Your Sites and Passwords</caption>
+          <caption>
+            Your Sites and Passwords
+            <a href="@routes.SiteController.download"
+               class="link-icon download-link">
+              <i class="icon-download-alt"></i>
+            </a>
+          </caption>
           <thead>
             <tr>
               <th>Site Name</th>

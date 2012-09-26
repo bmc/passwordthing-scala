@@ -38,6 +38,11 @@ body {
   }
 }
 
+.link-icon {
+  text-decoration: none;
+  color: black;
+}
+
 .captioned-table {
   // Twitter Bootstrap border radius rounds the <thead> and the
   // <tbody>, but the caption sits above them. Since we're rounding
@@ -81,6 +86,16 @@ body {
     h3 {
       text-align: center;
       width: 100%;
+    }
+  }
+}
+
+#sites {
+  caption {
+    .download-link {
+      font-size: @baseFontSize !important;
+      float: right !important;
+      margin-right: 10px;
     }
   }
 }

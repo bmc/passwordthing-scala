@@ -8,7 +8,8 @@ object ApplicationBuild extends Build {
     val appVersion      = "1.0-SNAPSHOT"
 
     val appDependencies = Seq(
-      "org.xerial" % "sqlite-jdbc" % "3.7.2"
+      "org.xerial" % "sqlite-jdbc" % "3.7.2",
+      "net.sf.opencsv" % "opencsv" % "2.0"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(

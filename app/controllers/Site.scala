@@ -206,6 +206,47 @@ object SiteController extends Controller with Secured with ControllerUtil {
     )
   }
 
+  def download = ActionWithUser { currentUser => implicit request =>
+    import au.com.bytecode.opencsv.CSVWriter
+    import java.io.StringWriter
+
+    Site.allForUser(currentUser).fold(
+
+      { error =>
+
+        Redirect(routes.SiteController.index()).
+          flashing("error" -> ("Can't get your sites: " + error))
+      },
+
+      { sites =>
+
+        val buf = new StringWriter
+        val csv = new CSVWriter(buf, ',')
+        csv.writeNext(
+          Array("name", "username", "email", "password", "url", "notes")
+        )
+
+        sites.foreach { site =>
+          csv.writeNext(
+            Array(
+              site.name,
+              site.username.getOrElse(""),
+              site.email.getOrElse(""),
+              site.password.getOrElse(""),
+              site.url.getOrElse(""),
+              site.notes.getOrElse("")
+            )
+          )
+        }
+
+        csv.close()
+        Ok(buf.toString).
+          as("text/csv").
+          withHeaders(CONTENT_DISPOSITION -> "attachment; filename=sites.csv")
+      }
+    )
+  }
+
   // ----------------------------------------------------------------------
   // Private methods
   // ----------------------------------------------------------------------
