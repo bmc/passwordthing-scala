@@ -144,17 +144,20 @@ object SiteController extends Controller with Secured with ControllerUtil {
 
         { site =>
 
-          Site.create(site, currentUser) match {
-            case Left(error) =>
+          Site.create(site, currentUser).fold(
+            { error =>
+
               val filledForm = siteForm.fill(site)
               val flash = Flash(Map("error" -> error))
               Ok(views.html.sites.makeNew(currentUser, filledForm)(flash))
+            },
 
-            case Right(dbSite) => {
+            { dbSite =>
+
               Redirect(routes.SiteController.edit(dbSite.id.get)).
                 flashing("info" -> "Saved.")
             }
-          }
+          )
         }
       )
     }
