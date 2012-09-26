@@ -1,6 +1,7 @@
-@(site: Site, currentUser: User, editForm: Form[models.Site])(implicit flash: Flash)
+@(id: Long, siteName: Option[String], currentUser: User, editForm: Form[models.Site])(implicit flash: Flash)
 
 @import tags._
+@import helper._
 
 @head = {
   @scriptAsset("javascripts/sites.min.js")
@@ -13,15 +14,17 @@
     @back(routes.Application.index(), "Back")
 
     <div id="edit-site-form" class="well">
-      <div class="heading">Edit user @site.name</div>
+      <div class="heading">
+        @{ siteName.map(name => "Editing: " + name).getOrElse("Edit site") }
+      </div>
 
-        @BasicSiteForm(editForm, routes.SiteController.update(site.id.get)) {
-          <input type="hidden" name="userID" value="@site.userID"/>
+      @BasicSiteForm(Some(id), editForm, routes.SiteController.update(id)) {
 
-          <div id="buttons">
-            <button class="btn btn-primary">Save</button>
-         </div>
-       }
+        <div id="buttons">
+          <button class="btn btn-primary">Save</button>
+       </div>
+
+     }
 
     </div>
   </div>

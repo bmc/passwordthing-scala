@@ -10,17 +10,15 @@ case class Site(name:     String,
                 password: Option[String],
                 url:      Option[String],
                 notes:    Option[String],
-                userID:   Long,
                 id:       Option[Long] = None) {
 
   // Useful when creating.
   def this(name:     String,
-           user:     User,
            username: Option[String] = None,
            email:    Option[String] = None,
            password: Option[String] = None,
            url:      Option[String] = None) = {
-    this(name, username, email, password, url, None, user.id.get)
+    this(name, username, email, password, url, None)
   }
 
   // Get the user associated with this site.
@@ -37,7 +35,6 @@ case class Site(name:     String,
       "email"    -> Json.toJson(email.getOrElse("")),
       "password" -> Json.toJson(password.getOrElse("")),
       "notes"    -> Json.toJson(notes.getOrElse("")),
-      "userID"   -> Json.toJson(userID),
       "url"      -> Json.toJson(url.getOrElse("")),
       "id"       -> Json.toJson(id.getOrElse(-1.toLong))
     )
@@ -50,10 +47,13 @@ object Site {
   import play.api.Play.current
   import ModelUtil._
 
-  def findByID(id: Long): Either[String, Site] = {
-    val query = SQL("SELECT * FROM sites WHERE id = {id}").on("id" -> id)
+  def findByID(id: Long, user: User): Either[String, Site] = {
+    val sql = SQL("""|SELECT * FROM sites
+                     |WHERE (id = {id}) AND (user_id = {uid})""".stripMargin).
+              on("id"  -> id,
+                 "uid" -> user.id.get)
 
-    executeQuery(query) { results => Right(decodeResults(results).head) }
+    executeQuery(sql) { results => Right(decodeResults(results).head) }
   }
 
   def count(user: User): Either[String, Long] = {
@@ -108,14 +108,13 @@ object Site {
     val sql = SQL(
       """|UPDATE sites SET name = {name}, username = {username},
          |email = {email}, password = {password}, url = {url}, notes = {notes}
-         |WHERE id = {id} AND user_id = {uid}""".stripMargin).
+         |WHERE id = {id}""".stripMargin).
       on("name"     -> site.name,
          "username" -> site.username,
          "email"    -> site.email,
          "password" -> site.password,
          "url"      -> site.email,
          "notes"    -> site.notes,
-         "uid"      -> site.userID,
          "id"       -> site.id.get
       )
 
@@ -159,7 +158,6 @@ object Site {
          row[Option[String]]("password"),
          row[Option[String]]("url"),
          row[Option[String]]("notes"),
-         row[Long]("user_id"),
          Some(row[Long]("id")))
   }
 }

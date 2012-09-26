@@ -1,4 +1,4 @@
-@(theForm: Form[models.Site], action: Call)(extraContent: Html)
+@(id: Option[Long], theForm: Form[models.Site], action: Call)(extraContent: Html)
 
 @import helper._
 @import helper.twitterBootstrap._
@@ -47,6 +47,9 @@
            '_label           -> "Notes",
            '_showConstraints -> false
   )
+
+  <input type="hidden" name="id" 
+         value="@{id.map{_.toString}.getOrElse("")}"/>
 
   @extraContent
 }

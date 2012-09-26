@@ -32,12 +32,9 @@ object SiteController extends Controller with Secured with ControllerUtil {
   }
 
   def show(id: Long) = ActionWithUser { currentUser => implicit request =>
-    Site.findByID(id) match {
+    Site.findByID(id, currentUser) match {
       case Left(error) =>
         ObjectNotFound(routes.SiteController.index())
-
-      case Right(site) if site.userID != currentUser.id.get =>
-        ObjectAccessDenied(routes.SiteController.index())
 
       case Right(site) =>
         Ok(views.html.sites.show(currentUser, site))
@@ -45,11 +42,8 @@ object SiteController extends Controller with Secured with ControllerUtil {
   }
 
   def getJSON(id: Long) = ActionWithUser { currentUser => implicit request =>
-    val res = Site.findByID(id) match {
+    val res = Site.findByID(id, currentUser) match {
       case Left(error) =>
-        Map("error" -> Json.toJson("Not found"))
-
-      case Right(site) if site.userID != currentUser.id.get =>
         Map("error" -> Json.toJson("Not found"))
 
       case Right(site) =>
@@ -59,7 +53,7 @@ object SiteController extends Controller with Secured with ControllerUtil {
     Ok(Json.toJson(res))
   }
 
-  private val editSiteForm = Form(
+  private val siteForm = Form(
     mapping(
       "name"         -> nonEmptyText,
       "username"     -> optional(text),
@@ -67,21 +61,21 @@ object SiteController extends Controller with Secured with ControllerUtil {
       "password"     -> optional(text),
       "url"          -> optional(text),
       "notes"        -> optional(text),
-      "userID"       -> longNumber
+      "id"           -> optional(longNumber)
     )
-    (applyForEdit)(unapplyForEdit)
+    (Site.apply)(Site.unapply)
   )
 
   def edit(id: Long) = ActionWithUser { currentUser => implicit request =>
-    Site.findByID(id) match {
+    Site.findByID(id, currentUser) match {
       case Left(error) =>
         ObjectNotFound(routes.SiteController.index())
 
-      case Right(site) if (site.userID != currentUser.id.get) =>
-        ObjectAccessDenied(routes.SiteController.index())
-
       case Right(site) =>
-        Ok(views.html.sites.edit(site, currentUser, editSiteForm.fill(site)))
+        Ok(views.html.sites.edit(site.id.get,
+                                 Some(site.name),
+                                 currentUser,
+                                 siteForm.fill(site)))
     }
   }
 
@@ -89,18 +83,12 @@ object SiteController extends Controller with Secured with ControllerUtil {
     ActionWithUser(parse.urlFormEncoded) {
       currentUser => implicit request =>
 
-      editSiteForm.bindFromRequest.fold (
+      siteForm.bindFromRequest.fold (
 
         // Failure. Repost.
         { form =>
-          Site.findByID(id) match {
-            case Left(error) =>
-              Redirect(routes.SiteController.index()).
-                flashing("error" -> ("Can't find site with ID " + id))
 
-            case Right(site) =>
-              BadRequest(views.html.sites.edit(site, currentUser, form))
-          }
+          BadRequest(views.html.sites.edit(id, None, currentUser, form))
         },
 
         { site =>
@@ -109,7 +97,7 @@ object SiteController extends Controller with Secured with ControllerUtil {
           // functionality to copy one into place.
           Site.update(site.copy(id = Some(id))) match {
             case Left(error) =>
-              val filledForm = editSiteForm.fill(site)
+              val filledForm = siteForm.fill(site)
               // Can't use "flashing" here, because the template will already
               // have been rendered by the time Ok is called. Instead, create
               // our own flash object and pass it to the template.
@@ -121,7 +109,8 @@ object SiteController extends Controller with Secured with ControllerUtil {
               //     implicit val flash = Flash(Map(...))
               //     Ok(views.html.admin.edituser(...))
               val flash = Flash(Map("error" -> error))
-              Ok(views.html.sites.edit(site, currentUser, filledForm)(flash))
+              Ok(views.html.sites.edit(id, Some(site.name), currentUser, filledForm)
+                                      (flash))
 
             case Right(worked:Boolean) =>
               Redirect(routes.SiteController.edit(id)).
@@ -132,25 +121,13 @@ object SiteController extends Controller with Secured with ControllerUtil {
     }
   }
 
-  private val newSiteForm = Form(
-    mapping(
-      "name"         -> nonEmptyText,
-      "username"     -> optional(text),
-      "email"        -> optional(text),
-      "password"     -> optional(text),
-      "url"          -> optional(text),
-      "notes"        -> optional(text)
-    )
-    (applyForNew)(unapplyForNew)
-  )
-
   def makeNew = ActionWithUser { currentUser => implicit request => 
-    Ok(views.html.sites.makeNew(currentUser, newSiteForm))
+    Ok(views.html.sites.makeNew(currentUser, siteForm))
   }
 
   def create = {
     ActionWithUser(parse.urlFormEncoded) { currentUser => implicit request =>
-      newSiteForm.bindFromRequest.fold (
+      siteForm.bindFromRequest.fold (
 
         // Failure. Re-post.
         { form =>
@@ -162,13 +139,13 @@ object SiteController extends Controller with Secured with ControllerUtil {
 
           Site.create(site, currentUser) match {
             case Left(error) =>
-              val filledForm = newSiteForm.fill(site)
+              val filledForm = siteForm.fill(site)
               val flash = Flash(Map("error" -> error))
               Ok(views.html.sites.makeNew(currentUser, filledForm)(flash))
 
             case Right(dbSite) => {
               Redirect(routes.SiteController.edit(dbSite.id.get)).
-              flashing("info" -> "Saved.")
+                flashing("info" -> "Saved.")
             }
           }
         }
@@ -212,44 +189,6 @@ object SiteController extends Controller with Secured with ControllerUtil {
   // ----------------------------------------------------------------------
   // Private methods
   // ----------------------------------------------------------------------
-
-  private def applyForEdit(name:     String,
-                           username: Option[String],
-                           email:    Option[String],
-                           password: Option[String],
-                           url:      Option[String],
-                           notes:    Option[String],
-                           userID:   Long) = {
-    Site(name, username, email, password, url, notes, userID)
-  }
-
-  private def unapplyForEdit(site: Site) = {
-    Some((site.name,
-          site.username,
-          site.email,
-          site.password,
-          site.url,
-          site.notes,
-          site.userID))
-  }
-
-  private def applyForNew(name:     String,
-                          username: Option[String],
-                          email:    Option[String],
-                          password: Option[String],
-                          url:      Option[String],
-                          notes:    Option[String]) = {
-    Site(name, username, email, password, url, notes, -1)
-  }
-
-  private def unapplyForNew(site: Site) = {
-    Some((site.name,
-          site.username,
-          site.email,
-          site.password,
-          site.url,
-          site.notes))
-  }
 
   private def sitesJson(sites: Seq[Site], errorMessage: Option[String] = None) = {
     val sitesMap = Json.toJson(sites.map {_.toJson})
