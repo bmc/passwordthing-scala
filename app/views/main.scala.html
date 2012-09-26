@@ -25,7 +25,6 @@
     <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
 
     @scriptAsset("javascripts/jquery-1.7.1.min.js")
-
     @scriptAsset("javascripts/util.min.js")
 
     <!--
@@ -62,7 +61,7 @@
           <ul class="nav">
             @currentUser.map { user =>
               <li id="nav-home" class="active">
-                <a href="@routes.Application.index()">
+                <a href="@routes.SiteController.index()">
                   <i class="icon-home"></i>Home
                 </a>
               </li>
@@ -101,7 +100,7 @@
             }.getOrElse("")
           }
         </div>
-        @{/* Used by window.flash() in util.coffee */}
+        @* Used by window.flash() in util.coffee *@
         <div id="flash-template" style="display:none">
           <div class="alert">
             <a class="close" data-dismiss="alert">x</a>

@@ -26,8 +26,8 @@ object SiteController extends Controller with Secured with ControllerUtil {
 
   def list = ActionWithUser { currentUser => implicit request =>
     Site.allForUser(currentUser) match {
-      case Left(error)  => Ok(siteJson(Nil, Some(error)))
-      case Right(sites) => Ok(siteJson(sites))
+      case Left(error)  => Ok(sitesJson(Nil, Some(error)))
+      case Right(sites) => Ok(sitesJson(sites))
     }
   }
 
@@ -42,6 +42,21 @@ object SiteController extends Controller with Secured with ControllerUtil {
       case Right(site) =>
         Ok(views.html.sites.show(currentUser, site))
     }
+  }
+
+  def getJSON(id: Long) = ActionWithUser { currentUser => implicit request =>
+    val res = Site.findByID(id) match {
+      case Left(error) =>
+        Map("error" -> Json.toJson("Not found"))
+
+      case Right(site) if site.userID != currentUser.id.get =>
+        Map("error" -> Json.toJson("Not found"))
+
+      case Right(site) =>
+        Map("site" -> site.toJson)
+    }
+
+    Ok(Json.toJson(res))
   }
 
   private val editSiteForm = Form(
@@ -171,10 +186,26 @@ object SiteController extends Controller with Secured with ControllerUtil {
       case Left(error2) =>
         // Combine the errors, assuming there's a first one.
         val e = error.map(_ + ", " + error2).getOrElse(error2)
-        Ok(siteJson(Nil, Some(e)))
+        Ok(sitesJson(Nil, Some(e)))
 
       case Right(sites) =>
-        Ok(siteJson(sites, error))
+        Ok(sitesJson(sites, error))
+    }
+  }
+
+  def search(q: String) = ActionWithUser { currentUser => implicit request =>
+    Site.search(q, currentUser) match {
+      case Left(error) =>
+        Logger.error("Search failed for user=\"" + currentUser.username +
+                     "\", q=\"" + q + "\": " + error)
+        Ok(Json.toJson(Array.empty[String]))
+
+      case Right(sites) =>
+        // Must send back an array of {"id": "n", "name": "___"} elements
+        val map = sites.map {
+          s => Map("id" -> s.id.get.toString, "name" -> s.name, "readonly" -> "true")
+        }
+        Ok(Json.toJson(map))
     }
   }
 
@@ -220,7 +251,7 @@ object SiteController extends Controller with Secured with ControllerUtil {
           site.notes))
   }
 
-  private def siteJson(sites: Seq[Site], errorMessage: Option[String] = None) = {
+  private def sitesJson(sites: Seq[Site], errorMessage: Option[String] = None) = {
     val sitesMap = Json.toJson(sites.map {_.toJson})
     Json.stringify(
       Json.toJson(

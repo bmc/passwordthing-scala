@@ -64,6 +64,10 @@ body {
 }
 
 #content {
+  header {
+    font-weight: bold;
+  }
+
   margin-top: @navbarHeight + 20px;
 
   #login-form {
@@ -92,16 +96,16 @@ body {
       width: 100%;
     }
   }
+}
 
-  #site-search {
-    margin-right: 10px;
-    float: right;
+#site-search {
+  margin-right: 10px;
+  float: right;
 
-    form {
-      i {
-        margin-right: 5px;
-        font-size: 16px;
-      }
+  form {
+    i {
+      margin-right: 5px;
+      font-size: 16px;
     }
   }
 }
@@ -140,4 +144,14 @@ body {
 
 #edit-site-form, #new-user-form {
   .standard-edit-form ();
+}
+
+ul.token-input-list {
+  display: inline-block;
+  list-style-type: none;
+  max-width: 240px !important;
+
+  input {
+    min-width: 200px !important;
+  }
 }

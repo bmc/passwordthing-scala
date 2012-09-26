@@ -4,10 +4,16 @@
 
 @head = {
   @scriptAsset("javascripts/sites.min.js")
+  @scriptAsset("javascripts/jquery.tokeninput.js")
+  @stylesheetAsset("stylesheets/token-input.css")
+
 }
 
 @main("Main", additionalHead = Some(head), currentUser = Some(currentUser)) {
   <div id="home">
+
+    @searchBox()
+
     <div class="span2">
       <div class="sidebar well">
         <img src="@routes.Assets.at("images/loading.gif")"
@@ -22,15 +28,17 @@
             <a id="new-site" href="@routes.SiteController.makeNew()">New site</a>
           </li>
         </ul>
+
+        @count.map { n =>
+          @{ val noun = if (n == 1) "site" else "sites"
+          <div class="stat">You have {n} {noun} on file.</div> }
+        }
+
       </div>
     </div>
 
     <div class="span7">
       <div id="main-panel">
-        @count.map { n =>
-          @{ val noun = if (n == 1) "site" else "sites"
-          <h3>You have {n} {noun} on file.</h3> }
-        }
       
       <!-- Site display -->
         <table id="sites"
@@ -74,14 +82,6 @@
           </thead>
           <tbody id="site-list"></tbody>
         </table>
-      </div>
-    </div>
-
-    <div class="span3">
-      <div id="site-search">
-        <form>
-          <i class="icon-search"></i><input type="text">
-        </form>
       </div>
     </div>
   </div>

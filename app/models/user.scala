@@ -29,9 +29,10 @@ case class User(username:             String,
   )
 }
 
-object User extends ModelUtil {
+object User {
   import anorm._
   import play.api.Play.current
+  import ModelUtil._
 
   /** Find a user by name. Returns the user object (Right(User)) or a log
     * message (Left(String)). The log message is not intended to be shown to
@@ -46,8 +47,10 @@ object User extends ModelUtil {
       results.map {decodeUser _}.toList match {
         case Nil =>
           Left("There is no user with name \"" + name + "\"")
+
         case user :: Nil =>
           Right(user)
+
         case user :: more :: Nil =>
           val msg = "(BUG) More than one user with name \"" + name + "\""
           Logger.debug(msg)
@@ -63,8 +66,10 @@ object User extends ModelUtil {
       results.map {decodeUser _}.toList match {
         case Nil =>
           Left("There is no user with ID \"" + id + "\"")
+
         case user :: Nil =>
           Right(user)
+
         case user :: more :: Nil =>
           val msg = "(BUG) More than one user with ID \"" + id + "\""
           Logger.debug(msg)

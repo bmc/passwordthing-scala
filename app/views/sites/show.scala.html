@@ -4,10 +4,15 @@
 
 @head = {
   @scriptAsset("javascripts/sites.min.js")
+  @scriptAsset("javascripts/jquery.tokeninput.js")
+  @stylesheetAsset("stylesheets/token-input.css")
 }
 
 @main(site.name, additionalHead = Some(head), currentUser = Some(currentUser)) {
   <div class="span12">
+
+    @searchBox()
+
     <form id="site-display" class="well">
       <header>Site: @site.name</header>
       <div class="field">

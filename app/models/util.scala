@@ -5,7 +5,7 @@ import play.api.Logger
 import play.api.db.DB
 import play.api.Play.current
 
-trait ModelUtil {
+object ModelUtil {
 
   /** Execute a SQL query, logging it at DEBUG level. Any SQL exceptions
     * are appropriate mapped and returned as the left-hand value.

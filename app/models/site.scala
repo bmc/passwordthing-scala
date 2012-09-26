@@ -45,16 +45,15 @@ case class Site(name:     String,
 }
 
 
-object Site extends ModelUtil {
+object Site {
   import anorm._
   import play.api.Play.current
+  import ModelUtil._
 
   def findByID(id: Long): Either[String, Site] = {
     val query = SQL("SELECT * FROM sites WHERE id = {id}").on("id" -> id)
 
-    executeQuery(query) { results =>
-      Right(results.map {decodeSite _}.toList.head)
-    }
+    executeQuery(query) { results => Right(decodeResults(results).head) }
   }
 
   def count(user: User): Either[String, Long] = {
@@ -70,14 +69,12 @@ object Site extends ModelUtil {
     val sql = SQL("SELECT * FROM sites WHERE user_id = {id} ORDER BY name").
               on("id" -> user.id)
 
-    executeQuery(sql) { results =>
-      Right(results.toList.map {decodeSite _})
-    }
+    executeQuery(sql) { results => Right(decodeResults(results)) }
   }
 
   def all: Either[String, Seq[Site]] = {
     executeQuery(SQL("SELECT * FROM sites ORDER BY name")) { results =>
-      Right(results.toList.map {decodeSite _})
+      Right(decodeResults(results))
     }
   }
 
@@ -135,9 +132,25 @@ object Site extends ModelUtil {
     }
   }
 
+  def search(q: String, user: User): Either[String, Seq[Site]] = {
+    val searchTerm = "%" + q.toLowerCase + "%"
+    withDBConnection { implicit connection =>
+      val sql = SQL(
+        """|SELECT * FROM sites
+           |WHERE user_id = {uid} AND (LOWER(name) LIKE {term})""".stripMargin).
+        on("uid"  -> user.id.get,
+           "term" -> searchTerm)
+
+      executeQuery(sql) { results => Right(decodeResults(results)) }
+    }
+  }
+
   // ----------------------------------------------------------------------
   // Private methods
   // ----------------------------------------------------------------------
+
+  private def decodeResults(results: Stream[Row]): Seq[Site] =
+    results.map {decodeSite _}.toList
 
   private def decodeSite(row: Row): Site = {
     Site(row[String]("name"),

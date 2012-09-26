@@ -59,3 +59,18 @@ $(document).ready ->
     false
 
   window.flagInlineFormErrors()
+
+  searchInput = $("#site-search-input")
+  searchURL = searchInput.data("search-url").replace(/\?.*$/, '')
+  showURL = searchInput.data("show-url")
+  
+  onSearchSelection = (item) ->
+    window.location = showURL.replace("-1", item.id)
+
+  tokenInputOpts =
+    minChars:   1
+    hint:       "Search for a site"
+    tokenLimit: 1
+    onAdd:      onSearchSelection
+
+  $("#site-search-input").tokenInput(searchURL, tokenInputOpts)
