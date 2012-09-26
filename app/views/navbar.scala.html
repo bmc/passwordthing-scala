@@ -30,8 +30,7 @@
     </ul>
     @currentUser.map { user =>
       <div id="logged-in-as">
-        <span class="prefix">Logged in as</span>
-        <span class="username">@user.username</span>
+        Welcome, @user.displayName
       </div>
     }
   </div>

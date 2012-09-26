@@ -18,12 +18,20 @@ case class User(username:             String,
   def this(username: String, password: String, isAdmin: Boolean) =
     this(username, "", Some(password), Some(password), None, None, None, isAdmin)
 
-  // Convert this user object to JSON (a JsValue, not a string). To
-  // convert this result to a JSON string, use this code:
-  //
-  //     import play.api.libs.json.Json
-  //     Json.stringify(user.toJson)
-  def toJson = Json.toJson(
+  /** Get the friendliest possible name for this user, for display purposes.
+    */
+  lazy val displayName = {
+    val fullName = List(firstName, lastName).flatten.mkString(" ").trim
+    if (fullName.length > 0) fullName else username
+  }
+
+  /** Convert this user object to JSON (a JsValue, not a string). To
+    * convert this result to a JSON string, use this code:
+    *
+    * import play.api.libs.json.Json
+    * Json.stringify(user.toJson)
+    */
+  lazy val toJson = Json.toJson(
     Map(
       "username"   -> Json.toJson(username),
       "email"      -> Json.toJson(email),
