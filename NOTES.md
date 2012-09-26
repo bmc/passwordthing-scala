@@ -121,32 +121,57 @@ For details see:
 
 ## Databases
 
-### SQLite
+### Evolutions
+
+#### Not generic
+
+Evolutions are pure SQL, which means they can be database vendor-specific,
+due to SQL type issues. One (ugly) solution is to have separate versions of
+each evolution, in different subdirectories under `conf/evolutions`.
+
+Of course, this means writing multiple variants of each evolution.
+
+#### Rollbacks
+
+There appears to be no way to force a rollback of an evolution (i.e., no way
+to force the "!Downs" section of the evolution.) The "!Downs" section is used
+primarily to roll back the evolution when there's a conflict or when the
+evolution has been edited.
+
+This is ugly.
+
+The only way around this problem, currently, is to write _another_ evolution
+that does the roll back. This is, of course, not necessarily what you want,
+since you may be applying and rolling back the evolution for testing purposes.
+
+### Running with specific databases
+
+#### SQLite
 
 [SQLite][] works just fine. The lack of ability to do an
 `ALTER TABLE DROP COLUMN` can be worked around, when necessary, by use of
 intermediate tables.
 
-### H2
+#### H2
 
 I had all kinds of problems with database corruptions when using a file-based
 [H2][] database. In-memory databases worked fine. Whenever I'd exit the Play
 console, however, the file-based database ended up corrupted somehow.
 
-### PostgreSQL
+#### PostgreSQL
 
 I have had no problems using Play with [PostgreSQL][].
 
-### MySQL
+#### MySQL
 
 I have not tried Play with [MySQL][], but, in general, the JVM plays fine with
 MySQL, so there shouldn't be any major issues.
 
-### Apache Derby
+#### Apache Derby
 
 Derby will work. It has some issues, though.
 
-#### Creating the database
+##### Creating the database
 
 First, while it's possible to use the `;create=true` attribute on the Derby
 JDBC connection URL, I prefer to create the database manually.
@@ -163,7 +188,7 @@ the `ij` tool, as follows:
 
 That suffices to create the database.
 
-#### Play Evolutions and Derby
+##### Play Evolutions and Derby
 
 Play's [evolutions][] attempt to create a `play_evolutions` table with various
 columns of SQL type `TEXT`. Derby doesn't support `TEXT`. To get around this
