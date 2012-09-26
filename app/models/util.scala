@@ -58,10 +58,10 @@ object ModelUtil {
     try {
       connection.setAutoCommit(false)
       val result = code(connection)
-      result match {
-        case Left(error)  => throw new Exception(error)
-        case Right(_)     => connection.commit()
-      }
+      result.fold(
+        { error  => throw new Exception(error) },
+        { _      => connection.commit() }
+      )
 
       result
     }

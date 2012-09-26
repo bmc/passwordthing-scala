@@ -39,10 +39,10 @@ object UserController extends Controller with Secured with ControllerUtil {
   }
 
   def list = ActionWithAdminUser { currentUser => implicit request =>
-    User.all match {
-      case Left(error)  => Ok(userJson(Nil, Some(error)))
-      case Right(users) => Ok(userJson(users))
-    }
+    User.all.fold(
+      { error => Ok(userJson(Nil, Some(error))) },
+      { users => Ok(userJson(users)) }
+    )
   }
 
   private val editUserForm = Form(
@@ -62,12 +62,17 @@ object UserController extends Controller with Secured with ControllerUtil {
   /** Display the form to edit an existing user.
     */
   def edit(id: Long) = ActionWithAdminUser { currentUser => implicit request =>
-    User.findByID(id) match {
-      case Left(error) =>
-        Redirect(routes.UserController.index()).flashing("error" -> error)
-      case Right(user) =>
+    User.findByID(id).fold(
+      { error =>
+
+        Redirect(routes.UserController.index()).flashing("error" -> error) 
+      },
+
+      { user =>
+
         Ok(views.html.users.edit(user, currentUser, editUserForm.fill(user)))
-    }
+      }
+    )
   }
 
   /** Update a user in response to an edit operation.
@@ -80,14 +85,19 @@ object UserController extends Controller with Secured with ControllerUtil {
 
         // Failure. Re-post.
         { form =>
-          User.findByID(id) match {
-            case Left(error) =>
+
+          User.findByID(id).fold(
+            { error =>
+
               Redirect(routes.UserController.index()).
                 flashing("error" -> ("Can't to find user with ID " + id))
+            },
   
-            case Right(user) =>
+            { user =>
+
               BadRequest(views.html.users.edit(user, currentUser, form))
-          }
+            }
+          )
         },
 
         { user =>
@@ -96,8 +106,9 @@ object UserController extends Controller with Secured with ControllerUtil {
 
           // The ID isn't part of the form-built user. Use the case-class copy()
           // functionality to copy one into place.
-          User.update(userAndID) match {
-            case Left(error) =>
+          User.update(userAndID).fold(
+            { error =>
+
               // Can't use "flashing" here, because the template will already
               // have been rendered by the time Ok is called. Instead, create
               // our own flash object and pass it to the template.
@@ -111,11 +122,13 @@ object UserController extends Controller with Secured with ControllerUtil {
               val flash = Flash(Map("error" -> error))
               val filledForm = editUserForm.fill(userAndID)
               Ok(views.html.users.edit(userAndID, currentUser, filledForm)(flash))
+            },
 
-            case Right(worked:Boolean) =>
-              Redirect(routes.UserController.edit(id)).
-                flashing("info" -> "Saved.")
-          }
+            { _ =>
+
+              Redirect(routes.UserController.edit(id)).flashing("info" -> "Saved.")
+            }
+          )
         }
       )
     }
@@ -154,17 +167,20 @@ object UserController extends Controller with Secured with ControllerUtil {
 
         { user =>
 
-          User.create(user) match {
-            case Left(error) =>
+          User.create(user).fold(
+            { error =>
+
               val filledForm = newUserForm.fill(user)
               val flash = Flash(Map("error" -> error))
               Ok(views.html.users.makeNew(currentUser, filledForm)(flash))
+            },
 
-            case Right(dbUser) => {
+            { dbUser =>
+
               Redirect(routes.UserController.edit(dbUser.id.get)).
-              flashing("info" -> "Saved.")
+                flashing("info" -> "Saved.")
             }
-          }
+          )
         }
       )
     }
@@ -174,20 +190,21 @@ object UserController extends Controller with Secured with ControllerUtil {
     * Delete a user by ID.
     */
   def delete(id: Long) = ActionWithAdminUser { currentUser => implicit request =>
-    val error = User.delete(id) match {
-      case Left(error) => Some(error)
-      case Right(bool) => None
-    }
+    val error = User.delete(id).fold(
+      { error => Some(error) },
+      { bool  => None }
+    )
 
-    User.all match {
-      case Left(error2) =>
+    User.all.fold(
+      { error2 =>
+
         // Combine the errors, assuming there's a first one.
         val e = error.map(_ + ", " + error2).getOrElse(error2)
         Ok(userJson(Nil, Some(e)))
+      },
 
-      case Right(users) =>
-        Ok(userJson(users, error))
-    }
+      { users => Ok(userJson(users, error)) }
+    )
   }
 
   // ----------------------------------------------------------------------
@@ -252,9 +269,9 @@ object UserController extends Controller with Secured with ControllerUtil {
   }
 
   private def uniqueUser(username: String) = {
-    User.findByName(username) match {
-      case Left(error) => true
-      case Right(user) => false
-    }
+    User.findByName(username).fold(
+      { error => true },
+      { user  => false }
+    )
   }
 }

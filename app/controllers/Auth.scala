@@ -64,17 +64,21 @@ object Auth extends Controller {
     Some((user.username, user.encryptedPassword))
 
   private def validLogin(u: User): Boolean = {
-    User.findByName(u.username) match {
-      case Left(error) =>
+    User.findByName(u.username).fold(
+      { error =>
+
         Logger.error(
           "Invalid login for user %s: %s".format(u.username, error)
         )
         false
+      },
 
-      case Right(dbUser) =>
+      { dbUser =>
+
         val valid = dbUser.encryptedPassword == u.encryptedPassword
         if (!valid) Logger.error("Bad password for user %s.".format(u.username))
         valid
-    }
+      }
+    )
   }
 }

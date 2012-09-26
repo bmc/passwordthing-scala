@@ -74,6 +74,7 @@ trait Secured {
                              f: User => Request[T] => Result) = {
     if (user.isAdmin)
       f(user)(request)
+
     else {
       Logger.error(
         "Non-admin user %s attempted unauthorized access.".format(user.username)
@@ -86,13 +87,15 @@ trait Secured {
                                    request: Request[T],
                                    f: User => Request[T] => Result) = {
     // Map the user name to the user, and pass it to the block.
-    User.findByName(username) match {
-      case Left(error) =>
+    User.findByName(username).fold(
+      { error =>
+
         Logger.error(error)
         onUnauthorized(request)
-      case Right(user) =>
-        f(user)(request)
-    }
+      },
+
+      { user => f(user)(request) }
+    )
   }
 
   private def withAuth(f: String => Request[AnyContent] => Result) = {
