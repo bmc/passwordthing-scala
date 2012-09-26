@@ -18,6 +18,6 @@ object Application extends Controller with Secured with ControllerUtil {
   // ----------------------------------------------------------------------
 
   def index = ActionWithUser { currentUser => implicit request =>
-    Redirect(routes.SiteController.index())
+    Redirect(routes.SiteController.index()).flashing(flash)
   }
 }

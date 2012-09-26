@@ -302,7 +302,7 @@ object UserController extends Controller with Secured with ControllerUtil {
   }
 
   private def uniqueUser(username: String) = {
-    User.findByName(username).fold(
+    User.findByUsername(username).fold(
       { error => true },
       { user  => false }
     )

@@ -87,7 +87,7 @@ trait Secured {
                                    request: Request[T],
                                    f: User => Request[T] => Result) = {
     // Map the user name to the user, and pass it to the block.
-    User.findByName(username).fold(
+    User.findByUsername(username).fold(
       { error =>
 
         Logger.error(error)

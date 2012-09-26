@@ -52,7 +52,7 @@ object User {
     * message (Left(String)). The log message is not intended to be shown to
     * the user.
     */
-  def findByName(name: String): Either[String, User] = {
+  def findByUsername(name: String): Either[String, User] = {
     val query = SQL(
        "SELECT * FROM appusers WHERE username = {name}"
     ).on("name" -> name)

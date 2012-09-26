@@ -42,15 +42,27 @@ object Auth extends Controller {
     // "Folding" the form means providing two values. The first value is
     // returned if the form failed validation. The second value is returned
     // if the form passes validation.
-    loginForm.bindFromRequest.fold(theForm => 
+    loginForm.bindFromRequest.fold(
 
       // Failure: Re-post the login form.
-      BadRequest(views.html.login(theForm)),
+      { form =>
+
+        BadRequest(views.html.login(form))
+      },
 
       // Success. Redirect to the main application.
-      user => Redirect(routes.Application.index()).
-                       withSession("username" -> user.username)
-      )
+      { user => 
+
+        val fullUser = User.findByUsername(user.username).fold(
+          error  => user,
+          dbUser => dbUser
+        )
+
+        Redirect(routes.Application.index()).
+          withSession("username" -> user.username).
+          flashing("info" -> ("Welcome back, " + fullUser.displayName))
+      }
+    )
   }
 
   // ----------------------------------------------------------------------
@@ -64,7 +76,7 @@ object Auth extends Controller {
     Some((user.username, user.encryptedPassword))
 
   private def validLogin(u: User): Boolean = {
-    User.findByName(u.username).fold(
+    User.findByUsername(u.username).fold(
       { error =>
 
         Logger.error(
