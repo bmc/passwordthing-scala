@@ -9,7 +9,7 @@
 @main("Edit User", additionalHead = Some(head), currentUser = Some(currentUser)) {
 
   <div class="span12">
-    @form_errors(editForm)
+    @formErrors(editForm)
     @back(routes.UserController.index(), "Back")
 
     <div id="edit-user-form" class="well">

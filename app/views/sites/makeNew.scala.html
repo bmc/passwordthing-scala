@@ -11,7 +11,7 @@
 @main("New User", additionalHead = Some(head), currentUser = Some(currentUser)) {
 
   <div class="span12">
-    @form_errors(newSiteForm)
+    @formErrors(newSiteForm)
     @back(routes.SiteController.index(), "Back")
 
     <div id="new-user-form" class="well">

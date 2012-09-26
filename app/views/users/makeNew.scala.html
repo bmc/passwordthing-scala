@@ -9,7 +9,7 @@
 @main("New User", additionalHead = Some(head), currentUser = Some(currentUser)) {
 
   <div class="span12">
-    @form_errors(newUserForm)
+    @formErrors(newUserForm)
     @back(routes.UserController.index(), "Back")
 
     <div id="new-user-form" class="well">
