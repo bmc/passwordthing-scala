@@ -50,8 +50,8 @@ object UserController extends Controller with Secured with ControllerUtil {
 
   def listJSON = ActionWithAdminUser { currentUser => implicit request =>
     User.all.fold(
-      { error => Ok(userJson(Nil, Some(error))) },
-      { users => Ok(userJson(users)) }
+      error => Ok(userJson(Nil, Some(error))),
+      users => Ok(userJson(users))
     )
   }
 
@@ -206,8 +206,8 @@ object UserController extends Controller with Secured with ControllerUtil {
     */
   def delete(id: Long) = ActionWithAdminUser { currentUser => implicit request =>
     val error = User.delete(id).fold(
-      { error => Some(error) },
-      { bool  => None }
+      error => Some(error),
+      bool  => None
     )
 
     User.all.fold(
@@ -303,8 +303,8 @@ object UserController extends Controller with Secured with ControllerUtil {
 
   private def uniqueUser(username: String) = {
     User.findByUsername(username).fold(
-      { error => true },
-      { user  => false }
+      error => true,
+      user  => false
     )
   }
 }

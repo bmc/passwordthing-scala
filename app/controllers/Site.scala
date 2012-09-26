@@ -30,22 +30,22 @@ object SiteController extends Controller with Secured with ControllerUtil {
 
   def list = ActionWithUser { currentUser => implicit request =>
     Site.allForUser(currentUser).fold(
-      { error => Ok(sitesJson(Nil, Some(error))) },
-      { sites => Ok(sitesJson(sites)) }
+      error => Ok(sitesJson(Nil, Some(error))),
+      sites => Ok(sitesJson(sites))
     )
   }
 
   def show(id: Long) = ActionWithUser { currentUser => implicit request =>
     Site.findByID(id, currentUser)fold(
-      { error => ObjectNotFound(routes.SiteController.index()) },
-      { site  => Ok(views.html.sites.show(currentUser, site)) }
+      error => ObjectNotFound(routes.SiteController.index()),
+      site  => Ok(views.html.sites.show(currentUser, site))
     )
   }
 
   def showJSON(id: Long) = ActionWithUser { currentUser => implicit request =>
     val res = Site.findByID(id, currentUser).fold(
-      { error => Map("error" -> Json.toJson("Not found")) },
-      { site  => Map("site" -> site.toJson) }
+      error => Map("error" -> Json.toJson("Not found")),
+      site  => Map("site" -> site.toJson)
     )
 
     Ok(Json.toJson(res))

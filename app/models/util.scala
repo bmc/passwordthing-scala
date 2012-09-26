@@ -59,8 +59,8 @@ object ModelUtil {
       connection.setAutoCommit(false)
       val result = code(connection)
       result.fold(
-        { error  => throw new Exception(error) },
-        { _      => connection.commit() }
+        error  => throw new Exception(error),
+        _      => connection.commit()
       )
 
       result
