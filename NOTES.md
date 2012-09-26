@@ -263,7 +263,9 @@ Example of use:
 * Add CSRF support.
 * `@media` queries in the Less files, to adjust the content top-margin,
   when the browser width narrows and the navbar gets taller.
+* Integrate [jQuery Mobile][], for better experience on mobile devices.
 
+[jQuery Mobile]: http://jquerymobile.com/
 [H2]: http://www.h2database.org/
 [SQLite]: http://www.sqlite.org/
 [download Derby]: http://db.apache.org/derby/derby_downloads.html

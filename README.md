@@ -2,11 +2,11 @@
 
 *PasswordThing* is a simple Scala [Play][] application that provides a
 (potentially) safe place to store passwords. It currently does _not_ encrypt
-the passwords, though it _does_ encrypt individual users' passwords.
+the passwords, though it _does_ encrypt individual users' login passwords.
 
 So, how is that even remotely safe? The safety, in this case, has to do with
 how you deploy *PasswordThing*. It's reasonably safe, under the following
-situation:
+conditions:
 
 * Run it locally, on a machine _you_ control.
 * Configure it to use a file-based database, such as [SQLite][].
