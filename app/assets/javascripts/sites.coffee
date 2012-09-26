@@ -3,8 +3,11 @@ $(document).ready ->
   showSiteList = (jsonData) ->
     data = eval(jsonData)
     sites = data.sites
+    total = sites.length
     if data.error?
       window.flash("error", data.error)
+
+    $("#site-count").text(total)
 
     $.each(sites, (i) ->
       siteID = this["id"]

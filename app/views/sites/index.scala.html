@@ -23,7 +23,7 @@
           <li>
             <a id="list-sites" href="javascript:void(0)"
                data-url="@routes.SiteController.list()">List all sites</a>
-            @totalSites.map { count => <span>(@count)</span> }
+            @totalSites.map { count => (<span id="site-count">@count</span>) }
           </li>
           <li>
             <a id="new-site" href="@routes.SiteController.makeNew()">New site</a>

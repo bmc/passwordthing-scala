@@ -169,7 +169,7 @@ object SiteController extends Controller with Secured with ControllerUtil {
       { worked => None }
     )
 
-    Site.all.fold(
+    Site.allForUser(currentUser).fold(
       { error2 =>
 
         // Combine the errors, assuming there's a first one.
