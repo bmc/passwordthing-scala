@@ -125,7 +125,7 @@ For details see:
 
 #### Not generic
 
-Evolutions are pure SQL, which means they can be database vendor-specific,
+[Evolutions][] are pure SQL, which means they can be database vendor-specific,
 due to SQL type issues. One (ugly) solution is to have separate versions of
 each evolution, in different subdirectories under `conf/evolutions`.
 
@@ -190,7 +190,7 @@ That suffices to create the database.
 
 ##### Play Evolutions and Derby
 
-Play's [evolutions][] attempt to create a `play_evolutions` table with various
+Play's [Evolutions][] attempt to create a `play_evolutions` table with various
 columns of SQL type `TEXT`. Derby doesn't support `TEXT`. To get around this
 problem. you need to create the `play_evolutions` table manually. This can also
 be done within `ij`. Just cut and paste the following SQL into the `ij`
@@ -266,3 +266,4 @@ Example of use:
 [download Derby]: http://db.apache.org/derby/derby_downloads.html
 [PostgreSQL]: http://www.postgresql.org/
 [MySQL]: http://dev.mysql.com/
+[evolutions]: http://scala.playframework.org/documentation/2.0.3/Evolutions
