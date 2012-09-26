@@ -95,7 +95,7 @@ $(document).ready ->
 
   tokenInputOpts =
     minChars:   1
-    hint:       "Search for a site"
+    hintText:   "Search your sites by name"
     tokenLimit: 1
     onAdd:      onSearchSelection
 
