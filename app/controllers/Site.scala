@@ -41,7 +41,7 @@ object SiteController extends Controller with Secured with ControllerUtil {
     }
   }
 
-  def getJSON(id: Long) = ActionWithUser { currentUser => implicit request =>
+  def showJSON(id: Long) = ActionWithUser { currentUser => implicit request =>
     val res = Site.findByID(id, currentUser) match {
       case Left(error) =>
         Map("error" -> Json.toJson("Not found"))

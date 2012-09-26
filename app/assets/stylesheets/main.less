@@ -109,14 +109,12 @@ body {
   margin: 2px !important;
 }
 
-#site-display {
-  .centered (40%);
+.site-display-styling (@width) {
+
+  .centered (@width);
 
   header {
-    text-align: center;
-    font-size: @baseFontSize + 5px;
-    font-weight: bold;
-    margin-bottom: 10px;
+    .heading-styles ();
   }
 
   .field {
@@ -126,6 +124,7 @@ body {
       min-width: 30px !important;
       width: 20% !important;
       text-align: left;
+      vertical-align: top;
     }
 
     .field-value {
@@ -135,9 +134,28 @@ body {
     }
 
     textarea.field-value:first-line {
+      width: 70%;
+      max-width: 70% !important;
       margin-left: 0;
       white-space: normal;
     }
+  }
+}
+
+#full-page-site-display {
+  .centered (50%);
+  .site-display {
+    .site-display-styling (100%);
+  }
+}
+
+#show-site-modal {
+  .modal-body {
+    min-height: 500px !important;
+  }
+
+  .site-display {
+    .site-display-styling (100%);
   }
 }
 

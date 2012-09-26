@@ -2,9 +2,7 @@ $(document).ready ->
 
   showSiteList = (jsonData) ->
     data = eval(jsonData)
-    console.log(data)
     sites = data.sites
-    console.log(sites)
     if data.error?
       window.flash("error", data.error)
 
@@ -22,12 +20,40 @@ $(document).ready ->
         $(this).attr("href", $(this).attr("href").replace("-1", siteID))
         $(this).removeAttr("id")
 
-      # Wire up the newly created delete buttons, but not the template one.
+      # Wire up the newly created delete button.
       newElem.find(".delete-site-button").click deleteSite
       $("#site-list").append(newElem)
+
+      # Wire up the show button.
+      newElem.find(".show-site-button").click showSite
+
       newElem.show()
     )
     $("#sites").show()
+
+  showSite = (event) ->
+    event.preventDefault()
+    url = $(this).attr("href")
+
+    handleShowResponse = (jsonData) ->
+      data = eval(jsonData)
+      site = data.site
+      if data.error?
+        window.flash("error", data.error)
+
+      else
+        console.log(site)
+        $(".show-site-name").text(site.name)
+        $(".show-site-name-field").val(site.name)
+        $(".show-site-email-field").val(site.email)
+        $(".show-site-username-field").val(site.username)
+        $(".show-site-password-field").val(site.password)
+        $(".show-site-url-field").val(site.url)
+        $(".show-site-notes-field").val(site.notes)
+        $("#show-site-modal").modal('show')
+
+    console.log "Ajaxing #{url}"
+    $.get(url, null, handleShowResponse, "json")
 
   deleteSite = (event) ->
     event.preventDefault()
@@ -74,3 +100,6 @@ $(document).ready ->
     onAdd:      onSearchSelection
 
   $("#site-search-input").tokenInput(searchURL, tokenInputOpts)
+
+  $("#show-site-modal").modal
+    show: false

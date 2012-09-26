@@ -14,37 +14,9 @@
     @searchBox()
     @back(routes.SiteController.index(), "Back")
 
-    <form id="site-display" class="well">
-      <header>Site: @site.name</header>
-      <div class="field">
-        <label class="field-label">Web site:</label>
-        <input type="text" readonly="true" class="field-value"
-               value="@site.url.getOrElse("")"/>
-      </div>
+    <div id="full-page-site-display" class="well">
+      @ShowPartial(site)
+    </div>
 
-      <div class="field">
-        <label class="field-label">Email:</label>
-        <input type="text" readonly="true" class="field-value"
-               value="@site.email.getOrElse("")"/>
-      </div>
-
-      <div class="field">
-        <label class="field-label">Username:</label>
-        <input type="text" readonly="true" class="field-value"
-               value="@site.username.getOrElse("")"/>
-      </div>
-
-      <div class="field">
-        <label class="field-label">Password:</label>
-        <input type="text" readonly="true" class="field-value"
-               value="@site.password.getOrElse("")"/>
-      </div>
-
-      <div class="field">
-        <label class="field-label">Notes:</label>
-        <textarea disabled="true" rows="10" 
-                  class="field-value">@site.notes.getOrElse("")</textarea>
-      </div>
-    </form>
   </div>
 }

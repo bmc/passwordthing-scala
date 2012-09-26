@@ -1,0 +1,35 @@
+@(site: Site)
+
+<form class="site-display">
+  <header>Site: <span class="show-site-name">@site.name</span></header>
+  <div class="field">
+    <label class="field-label">Web site:</label>
+    <input type="text" class="field-value show-site-name-field"
+           readonly="true" value="@site.url.getOrElse("")"/>
+  </div>
+  <div class="field">
+    <label class="field-label">Email:</label>
+    <input type="text" class="field-value show-site-email-field"
+           readonly="true" value="@site.email.getOrElse("")"/>
+  </div>
+  <div class="field">
+    <label class="field-label">Username:</label>
+    <input type="text" class="field-value show-site-username-field"
+           readonly="true" value="@site.username.getOrElse("")"/>
+  </div>
+  <div class="field">
+    <label class="field-label">Password:</label>
+    <input type="text" class="field-value show-site-password-field"
+           readonly="true" value="@site.password.getOrElse("")"/>
+  </div>
+  <div class="field">
+    <label class="field-label">Web Site:</label>
+    <input type="text" class="show-site-url-field field-value"
+           readonly="true" value="@site.url.getOrElse("")"/>
+  </div>
+  <div class="field">
+    <label class="field-label">Notes:</label>
+    <textarea disabled="true" class="show-site-notes-field field-value"
+              rows="10">@site.notes.getOrElse("")</textarea>
+  </div>
+</form>

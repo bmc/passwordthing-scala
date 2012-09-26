@@ -21,6 +21,8 @@ case class Site(name:     String,
     this(name, username, email, password, url, None)
   }
 
+  def this(name: String) = this(name, None, None, None, None, None)
+
   // Get the user associated with this site.
 
   // Convert this site object to JSON (a JsValue, not a string). To
@@ -41,11 +43,12 @@ case class Site(name:     String,
   )
 }
 
-
 object Site {
   import anorm._
   import play.api.Play.current
   import ModelUtil._
+
+  val Dummy = new Site("dummy")
 
   def findByID(id: Long, user: User): Either[String, Site] = {
     val sql = SQL("""|SELECT * FROM sites
@@ -53,7 +56,13 @@ object Site {
               on("id"  -> id,
                  "uid" -> user.id.get)
 
-    executeQuery(sql) { results => Right(decodeResults(results).head) }
+    executeQuery(sql) { results =>
+      decodeResults(results) match {
+        case Nil         => Left("Not found")
+        case item :: Nil => Right(item)
+        case _           => Left("(BUG) Multiple sites with ID " + id)
+      }
+    }
   }
 
   def count(user: User): Either[String, Long] = {
