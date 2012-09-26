@@ -1,0 +1,38 @@
+@(currentUser: Option[User])
+
+<div class="navbar navbar-fixed-top navbar-inverse">
+  <div class="navbar-inner">
+    <a class="brand">
+      <img src="@routes.Assets.at("images/logo.png")" id="logo-image"/>
+      PasswordThing
+    </a>
+    <ul class="nav">
+      @currentUser.map { user =>
+        <li id="nav-home" class="active">
+          <a href="@routes.SiteController.index()">
+            <i class="icon-home"></i>Home
+          </a>
+        </li>
+
+        @if(user.isAdmin) {
+          <li>
+            <a href="@routes.AdminController.index()">
+              <i class="icon-wrench"></i>Admin
+            </a>
+          </li>
+        }
+        <li>
+          <a href="@routes.Auth.logout()">
+            <i class="icon-off"></i>Sign out
+          </a>
+        </li>
+      }
+    </ul>
+    @currentUser.map { user =>
+      <div id="logged-in-as">
+        <span class="prefix">Logged in as</span>
+        <span class="username">@user.username</span>
+      </div>
+    }
+  </div>
+</div>
