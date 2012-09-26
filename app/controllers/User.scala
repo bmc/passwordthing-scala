@@ -52,6 +52,9 @@ object UserController extends Controller with Secured with ControllerUtil {
                                                          validPassword _)),
       "password_confirmation" -> optional(text.verifying(PasswordError,
                                                          validPassword _)),
+      "first_name"            -> optional(text),
+      "last_name"             -> optional(text),
+      "email"                 -> optional(text),
       "isAdmin"               -> boolean
     )
     (applyForEdit)
@@ -103,7 +106,7 @@ object UserController extends Controller with Secured with ControllerUtil {
         { user =>
 
           val userAndID = user.copy(id = Some(id))
-
+println("*** userAndID=" + userAndID)
           // The ID isn't part of the form-built user. Use the case-class copy()
           // functionality to copy one into place.
           User.update(userAndID).fold(
@@ -140,6 +143,9 @@ object UserController extends Controller with Secured with ControllerUtil {
                                  verifying("User already exists", uniqueUser _),
       "password"              -> text.verifying(PasswordError, validPassword _),
       "password_confirmation" -> text.verifying(PasswordError, validPassword _),
+      "first_name"            -> optional(text),
+      "last_name"             -> optional(text),
+      "email"                 -> optional(text),
       "isAdmin"               -> boolean
     )
     (applyForCreate)
@@ -214,27 +220,42 @@ object UserController extends Controller with Secured with ControllerUtil {
   private def applyForCreate(name:                 String,
                              password:             String,
                              passwordConfirmation: String,
+                             firstName:            Option[String],
+                             lastName:             Option[String],
+                             email:                Option[String],
                              isAdmin:              Boolean) =
     User(name,
          User.encrypt(password),
          Some(password),
          Some(passwordConfirmation),
+         firstName,
+         lastName,
+         email,
          isAdmin)
 
   private def unapplyForCreate(user: User) =
     Some((user.username, 
           user.password.getOrElse(""),
           user.passwordConfirmation.getOrElse(""),
+          user.firstName,
+          user.lastName,
+          user.email,
           user.isAdmin))
 
   private def applyForEdit(name:                 String,
                            password:             Option[String],
                            passwordConfirmation: Option[String],
+                           firstName:            Option[String],
+                           lastName:             Option[String],
+                           email:                Option[String],
                            isAdmin:              Boolean) = {
     User(name,
          password.map {pw => User.encrypt(pw)}.getOrElse(""),
          password,
          passwordConfirmation,
+         firstName,
+         lastName,
+         email,
          isAdmin)
   }
 
@@ -242,6 +263,9 @@ object UserController extends Controller with Secured with ControllerUtil {
     Some((user.username, 
           user.password,
           user.passwordConfirmation,
+          user.firstName,
+          user.lastName,
+          user.email,
           user.isAdmin))
 
   private def userJson(users: Seq[User], errorMessage: Option[String] = None) = {

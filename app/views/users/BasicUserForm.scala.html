@@ -12,6 +12,7 @@
            '_showConstraints -> false,
            '_placeholder     -> "user name"
   )
+
   @inputPassword(
     theForm("password"),
     args = 'size             -> 16,
@@ -20,6 +21,7 @@
            '_showConstraints -> false,
            '_placeholder     -> "password"
   )
+
   @inputPassword(
     theForm("password_confirmation"),
     args = 'size             -> 16,
@@ -28,6 +30,34 @@
            '_showConstraints -> false,
            '_placeholder     -> "password (again)"
   )
+
+  @inputText(
+    theForm("first_name"),
+    args = 'size             -> 16,
+           'id               -> "first-name",
+           '_label           -> "First name",
+           '_showConstraints -> false,
+           '_placeholder     -> "first name"
+  )
+
+  @inputText(
+    theForm("last_name"),
+    args = 'size             -> 16,
+           'id               -> "last-name",
+           '_label           -> "Last name",
+           '_showConstraints -> false,
+           '_placeholder     -> "last name"
+  )
+
+  @inputText(
+    theForm("email"),
+    args = 'size             -> 16,
+           'id               -> "email",
+           '_label           -> "Email address",
+           '_showConstraints -> false,
+           '_placeholder     -> "email address"
+  )
+
   @checkbox(
     theForm("isAdmin"),
     args = 'id               -> "is-admin",

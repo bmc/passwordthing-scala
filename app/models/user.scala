@@ -8,12 +8,15 @@ case class User(username:             String,
                 encryptedPassword:    String,
                 password:             Option[String], // Not persisted
                 passwordConfirmation: Option[String], // Not persisted
+                firstName:            Option[String],
+                lastName:             Option[String],
+                email:                Option[String],
                 isAdmin:              Boolean,
                 id:                   Option[Long] = None) {
 
   // Helpful for creation
   def this(username: String, password: String, isAdmin: Boolean) =
-    this(username, "", Some(password), Some(password), isAdmin)
+    this(username, "", Some(password), Some(password), None, None, None, isAdmin)
 
   // Convert this user object to JSON (a JsValue, not a string). To
   // convert this result to a JSON string, use this code:
@@ -88,11 +91,16 @@ object User {
   def create(user: User): Either[String, User] = {
     withDBConnection { implicit connection =>
       val sql = SQL(
-        """|INSERT INTO appusers(username, encrypted_password, is_admin)
-           |VALUES({name}, {pw}, {admin})""".stripMargin).
-        on("name"  -> user.username,
-           "pw"    -> encrypt(user.password.getOrElse("")),
-           "admin" -> encodeBoolean(user.isAdmin))
+        """|INSERT INTO appusers(username, encrypted_password, first_name,
+           |last_name, email, is_admin)
+           |VALUES({name}, {pw}, {first_name}, {last_name}, {email},
+           |{admin})""".stripMargin).
+        on("name"       -> user.username,
+           "pw"         -> encrypt(user.password.getOrElse("")),
+           "first_name" -> user.firstName,
+           "last_name"  -> user.lastName,
+           "email"      -> user.email,
+           "admin"      -> encodeBoolean(user.isAdmin))
 
       // Note that executeInsert() will return the primary key.
       // See http://stackoverflow.com/questions/9859700/
@@ -113,20 +121,29 @@ object User {
       // Within this block, we know we actually have a password.
       SQL("""|UPDATE appusers
              |SET username = {name}, encrypted_password = {pw},
-             |is_admin = {admin}
+             |first_name = {first_name}, last_name = {last_name},
+             |email = {email}, |is_admin = {admin}
              |WHERE id = {id}""".stripMargin).
-      on("name"  -> user.username,
-         "pw"    -> encrypt(pw),
-         "admin" -> encodeBoolean(user.isAdmin),
-         "id"    -> user.id.get
+      on("name"       -> user.username,
+         "pw"         -> encrypt(pw),
+         "first_name" -> user.firstName,
+         "last_name"  -> user.lastName,
+         "email"      -> user.email,
+         "admin"      -> encodeBoolean(user.isAdmin),
+         "id"         -> user.id.get
       )
     }.getOrElse(
       // Within this block, we know we don't.
-      SQL("""|UPDATE appusers SET username = {name}, is_admin = {admin}
+      SQL("""|UPDATE appusers
+             |SET username = {name}, first_name = {fname}, last_name = {lname},
+             |email = {email}, is_admin = {admin}
              |WHERE id = {id}""".stripMargin).
-      on("name"  -> user.username,
-         "admin" -> encodeBoolean(user.isAdmin),
-         "id"    -> user.id.get
+      on("name"   -> user.username,
+         "admin"  -> encodeBoolean(user.isAdmin),
+         "fname"  -> user.firstName,
+         "lname"  -> user.lastName,
+         "email"  -> user.email,
+         "id"     -> user.id.get
       )
     )
 
@@ -156,6 +173,9 @@ object User {
          row[String]("encrypted_password"),
          None,
          None,
+         row[Option[String]]("first_name"),
+         row[Option[String]]("last_name"),
+         row[Option[String]]("email"),
          decodeBoolean(row[Int]("is_admin")),
          Some(row[Long]("id")))
   }
