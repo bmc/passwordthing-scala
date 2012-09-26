@@ -11,9 +11,16 @@ conditions:
 * Run it locally, on a machine _you_ control.
 * Configure it to use a file-based database, such as [SQLite][].
 * Store that database on an encrypted partition.
+* Keep the credentials for that encrypted partition safe.
+* Use SSL to connect to it, if you allow connections from outside your
+  network.
 
 In other words, it's a bit easier to use than a spreadsheet full of passwords,
 but it's not intended to be deployed publicly.
+
+The bit that makes it better than an encrypted file full of passwords is
+the webbiness: You can get to it from anywhere (but remember the SSL goodness),
+and it's reasonably usable on any device.
 
 *PasswordThing* is intended primarily as demoware and accompanies the
 presentation on Play that I'll be giving to a joint meeting of the Philadelphia
