@@ -60,22 +60,21 @@
               the <tbody>, because the <tbody> is cleared with every request.
             -->
             <tr id="site-template" style="display:none">
-              <td class="field-value site-name"></td>
+              <td class="field-value">
+                <a class="site-name show-site-button action-button"
+                   href="@routes.SiteController.show(-1)"></a>
+              </td>
               <td class="field-value site-username"></td>
               <td class="field-value site-email"></td>
               <td class="field-value site-password"></td>
               <td>
-                <a class="btn btn-mini show-site-button action-button"
-                   href="@routes.SiteController.show(-1)"> 
-                  Details
-                </a>
-                <a class="btn btn-mini edit-site-button action-button"
+                <a class="edit-site-button action-button"
                    href="@routes.SiteController.edit(-1)"> 
-                  Edit
+                  <i class="icon-edit"></i>
                 </a>
-                <a class="btn btn-mini delete-site-button action-button"
+                <a class="delete-site-button action-button"
                    href="@routes.SiteController.delete(-1)">
-                  Delete
+                  <i class="icon-cut"></i>
                 </a>
               </td>
             </tr>

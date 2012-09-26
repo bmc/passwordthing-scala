@@ -31,7 +31,7 @@ $(document).ready ->
           trigger: "hover"
           placement: 'bottom'
         )
-        deleteButton.attr("disabled", "disabled")
+        deleteButton.hide()
         deleteButton.attr("href", "javascript:void(0)")
       else
         deleteButton.click deleteUser
