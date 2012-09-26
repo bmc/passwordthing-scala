@@ -165,8 +165,8 @@ object SiteController extends Controller with Secured with ControllerUtil {
 
   def delete(id: Long) = ActionWithUser { currentUser => implicit request =>
     val error = Site.delete(id).fold(
-      { error => Some(error) },
-      { worked => None }
+      error => Some(error),
+      worked => None
     )
 
     Site.allForUser(currentUser).fold(
