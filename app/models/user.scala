@@ -99,6 +99,12 @@ object User {
     }
   }
 
+  def count: Either[String, Long] = {
+    executeQuery(SQL("SELECT COUNT(id) AS count FROM appusers")) { results =>
+      Right(results.map { row => row[Long]("count") }.toList.head)
+    }
+  }
+
   def create(user: User): Either[String, User] = {
     withDBConnection { implicit connection =>
       val sql = SQL(

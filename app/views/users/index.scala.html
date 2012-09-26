@@ -1,4 +1,4 @@
-@(currentUser: User)(implicit flash: Flash)
+@(currentUser: User, totalUsers: Option[Long])(implicit flash: Flash)
 
 @import tags._
 
@@ -17,6 +17,7 @@
           <li>
             <a id="list-users" href="javascript:void(0)"
                data-url="@routes.UserController.listJSON()">List all users</a>
+            @totalUsers.map { count => <span>(@count)</span> }
           </li>
           <li>
             <a id="new-user"

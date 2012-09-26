@@ -35,7 +35,17 @@ object UserController extends Controller with Secured with ControllerUtil {
   // ----------------------------------------------------------------------
 
   def index = ActionWithAdminUser { currentUser => implicit request =>
-    Ok(views.html.users.index(currentUser))
+    val count = User.count.fold(
+      { error =>
+
+        Logger.error("Can't get count of total number of users: " + error)
+        None
+      },
+
+      { count => Some(count) }
+    )
+
+    Ok(views.html.users.index(currentUser, count))
   }
 
   def listJSON = ActionWithAdminUser { currentUser => implicit request =>
