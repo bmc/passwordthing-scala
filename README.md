@@ -32,10 +32,26 @@ to the full path to the SQLite database. You'll need to set that variable
 before starting Play.
 
 Of course, you're welcome to use some other database. I've used this app
-with [SQLite][], [PostgreSQL][], [H2][] (sort of), and [Derby][].
+with [SQLite][], [PostgreSQL][], [H2][] (sort of), and [Apache Derby][].
 
 See the "Databases" section in the [NOTES][] file for possible issues with
 other databases.
+
+## Running this thing
+
+If you know [Play][], you know what to do.
+
+If you don't, download [Play][], clone this repo, change your directory to
+the top level of the repo, and type:
+
+    play run
+
+to run it in development mode. If you totally trust that I've built a rock-
+solid piece of demoware, you can type `play start` to run it in production
+mode. You'll have to hit `Ctrl-D` to detach it into the background.
+
+See <http://www.playframework.org/documentation/2.0.3/Production> for more
+details.
 
 [Play]: http://playframework.org/
 [evolutions]: http://scala.playframework.org/documentation/2.0.3/Evolutions

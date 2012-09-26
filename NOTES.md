@@ -169,7 +169,10 @@ MySQL, so there shouldn't be any major issues.
 
 #### Apache Derby
 
-Derby will work. It has some issues, though.
+[Derby][] will work. It has some issues, though.
+
+[Derby]: http://db.apache.org/derby/
+
 
 ##### Creating the database
 
