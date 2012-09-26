@@ -1,4 +1,4 @@
-@(currentUser: User, count: Option[Long] = None)(implicit flash: Flash)
+@(currentUser: User, totalSites: Option[Long] = None)(implicit flash: Flash)
 
 @import tags._
 
@@ -23,17 +23,12 @@
           <li>
             <a id="list-sites" href="javascript:void(0)"
                data-url="@routes.SiteController.list()">List all sites</a>
+            @totalSites.map { count => <span>(@count)</span> }
           </li>
           <li>
             <a id="new-site" href="@routes.SiteController.makeNew()">New site</a>
           </li>
         </ul>
-
-        @count.map { n =>
-          @{ val noun = if (n == 1) "site" else "sites"
-          <div class="stat">You have {n} {noun} on file.</div> }
-        }
-
       </div>
     </div>
 
