@@ -19,11 +19,6 @@ trait Secured {
 
   def username(request: RequestHeader) = request.session.get(Security.username)
 
-  def onUnauthorized(request: RequestHeader) = Results.Forbidden
-
-  def onNeedLogin(request: RequestHeader) =
-    Results.Redirect(routes.Auth.login())
-
   // Chain this to a controller action, e.g.:
   //
   //    def index = ActionWithUser { user => implicit request =>
@@ -69,6 +64,9 @@ trait Secured {
   // Private methods
   // ----------------------------------------------------------------------
 
+  def mustSignIn(request: RequestHeader) =
+    Results.Redirect(routes.Auth.login())
+
   private def callIfAdmin[T](user: User,
                              request: Request[T],
                              f: User => Request[T] => Result) = {
@@ -79,7 +77,10 @@ trait Secured {
       Logger.error(
         "Non-admin user %s attempted unauthorized access.".format(user.username)
       )
-      onUnauthorized(request)
+      // A non-admin user attempting to access an administrative page shouldn't
+      // get a "permission denied", which reveals that an admin page does
+      // exist. Instead, he should get a 404.
+      Results.NotFound
     }
   }
 
@@ -91,7 +92,7 @@ trait Secured {
       { error =>
 
         Logger.error(error)
-        onUnauthorized(request)
+        mustSignIn(request)
       },
 
       { user => f(user)(request) }
@@ -99,7 +100,7 @@ trait Secured {
   }
 
   private def withAuth(f: String => Request[AnyContent] => Result) = {
-    Security.Authenticated(username, onNeedLogin) { username =>
+    Security.Authenticated(username, mustSignIn) { username =>
       Action(request => f(username)(request))
     }
   }
@@ -108,7 +109,7 @@ trait Secured {
   // to the generated Action.
   private def withAuth[T](bodyParser: BodyParser[T])
                  (f: String => Request[T] => Result) = {
-    Security.Authenticated(username, onNeedLogin) { username =>
+    Security.Authenticated(username, mustSignIn) { username =>
       Action(bodyParser)(request => f(username)(request))
     }
   }
