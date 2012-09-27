@@ -48,17 +48,38 @@ other databases.
 
 If you know [Play][], you know what to do.
 
-If you don't, download [Play][], clone this repo, change your directory to
-the top level of the repo, and type:
+If you don't, download [Play][], clone this repo, fire up a command shell,
+change your directory to the top level of the repo, and type (on a Unix or a
+Mac):
 
-    play run
+    DBPATH=sample.sqlite3 play run
 
 to run it in development mode. If you totally trust that I've built a rock-
-solid piece of demoware, you can type `play start` to run it in production
-mode. You'll have to hit `Ctrl-D` to detach it into the background.
+solid piece of demoware, you can type:
+
+    DBPATH=sample.sqlite3 play start
+
+to run it in production mode. You'll have to hit `Ctrl-D` to detach it into the
+background.
 
 See <http://www.playframework.org/documentation/2.0.3/Production> for more
-details.
+details on running Play applications.
+
+### The sample database
+
+The sample database, `sample.sqlite3`, contains a single user with administrative privileges:
+
+* Username: `admin`
+* Password: `password`
+
+Admin users can create, read, update and delete other users. (They can only see
+their own web site passwords, though, at least through the UI.) I recommend
+that you either:
+
+* change the `admin` user's password, or
+* create a new user with administrative privileges, log in as that user,
+  and then delete the `admin` user.
+
 
 [Play]: http://playframework.org/
 [evolutions]: http://scala.playframework.org/documentation/2.0.3/Evolutions
