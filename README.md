@@ -29,8 +29,8 @@ Java User's Group ([PhillyJUG][]) and the Philly Area Scala Enthusiasts
 
 ## Database
 
-By default, *PasswordThing* uses [SQLite][], because I wanted a portable, file-
-based database. Among other things, it's easier to store a file-based database
+By default, *PasswordThing* uses [SQLite][], because I wanted a portable, single-file
+database. Among other things, it's easier to store a single-file database
 on an encrypted partition, which isn't a bad thing for a database that contains
 web site passwords.
 
