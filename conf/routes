@@ -42,7 +42,6 @@ POST    /site/:id/delete       controllers.SiteController.delete(id: Long)
 # ---------------------------------------------------------------------------
 # Admin Routes
 
-GET     /admin                 controllers.AdminController.index
 GET     /users                 controllers.UserController.index
 GET     /users/json            controllers.UserController.listJSON
 GET     /user/:id/edit         controllers.UserController.edit(id: Long)
