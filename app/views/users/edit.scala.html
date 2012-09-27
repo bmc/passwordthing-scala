@@ -1,4 +1,4 @@
-@(editUser: User, currentUser: User, editForm: Form[models.User])(implicit flash: Flash)
+@(editUser: UIUser, id: Long, currentUser: User, editForm: Form[UIUser])(implicit flash: Flash)
 
 @import tags._
 
@@ -15,9 +15,7 @@
     <div id="edit-user-form" class="well">
       <div class="heading">Edit user @editUser.username</div>
 
-      @BasicUserForm(editForm, routes.UserController.update(editUser.id.get)) {
-
-        <input type="hidden" name="id" value="@editUser.id.get"/>
+      @BasicUserForm(editForm, routes.UserController.update(id)) {
 
         <div id="buttons">
           <button class="btn btn-primary">Save</button>

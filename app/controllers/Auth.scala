@@ -70,7 +70,7 @@ object Auth extends Controller {
   // ----------------------------------------------------------------------
 
   private def applyForLogin(name: String, password: String): User =
-    User(name, encrypt(password), None, None, None, None, None, false)
+    User(name, encrypt(password), None, None, None, false)
 
   private def unapplyForLogin(user: User) =
     Some((user.username, user.encryptedPassword))

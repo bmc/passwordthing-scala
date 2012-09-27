@@ -3,7 +3,7 @@ package controllers
 import play.api._
 import play.api.mvc._
 import play.api.data.Forms._
-import play.api.data.Form
+import play.api.data.{Form, WrappedMapping}
 import play.api.libs.json.Json
 
 import models.User._
@@ -67,8 +67,8 @@ object UserController extends Controller with Secured with ControllerUtil {
       "email"                 -> optional(text),
       "isAdmin"               -> boolean
     )
-    (applyForEdit)
-    (unapplyForEdit)
+    (UIUser.apply)
+    (UIUser.unapply)
     verifying("Passwords don't match.", passwordsMatch _)
   )
 
@@ -83,7 +83,9 @@ object UserController extends Controller with Secured with ControllerUtil {
 
       { user =>
 
-        Ok(views.html.users.edit(user, currentUser, editUserForm.fill(user)))
+        val uiUser = new UIUser(user)
+        val filledForm = editUserForm.fill(uiUser)
+        Ok(views.html.users.edit(uiUser, id, currentUser, filledForm))
       }
     )
   }
@@ -108,17 +110,15 @@ object UserController extends Controller with Secured with ControllerUtil {
   
             { user =>
 
-              BadRequest(views.html.users.edit(user, currentUser, form))
+              val uiUser = new UIUser(user)
+              BadRequest(views.html.users.edit(uiUser, id, currentUser, form))
             }
           )
         },
 
-        { user =>
+        { uiUser =>
 
-          // The ID isn't part of the form-built user. Use the case-class copy()
-          // functionality to copy one into place.
-          val userAndID = user.copy(id = Some(id))
-          User.update(userAndID).fold(
+          User.update(uiUser.toUser.copy(id = Some(id))).fold(
             { error =>
 
               // Can't use "flashing" here, because the template will already
@@ -132,13 +132,14 @@ object UserController extends Controller with Secured with ControllerUtil {
               //     implicit val flash = Flash(Map(...))
               //     Ok(views.html.admin.edituser(...))
               val flash = Flash(Map("error" -> error))
-              val filledForm = editUserForm.fill(userAndID)
-              Ok(views.html.users.edit(userAndID, currentUser, filledForm)(flash))
+              val filledForm = editUserForm.fill(uiUser)
+              Ok(views.html.users.edit(uiUser, id, currentUser, filledForm)(flash))
             },
 
             { _ =>
 
-              Redirect(routes.UserController.edit(id)).flashing("info" -> "Saved.")
+              Redirect(routes.UserController.edit(id)).
+                flashing("info" -> "Saved.")
             }
           )
         }
@@ -146,20 +147,26 @@ object UserController extends Controller with Secured with ControllerUtil {
     }
   }
 
-  val newUserForm = Form(
+  // The new user form is similar, but not quite identical, to the
+  // editUserForm. The password is required. Rather than write separate
+  // apply/unapply methods, we'll just tack a new constraint on the end.
+
+  private val newUserForm = Form(
     mapping(
-      "username"              -> nonEmptyText(minLength=MinUsernameLength).
-                                 verifying("User already exists", uniqueUser _),
-      "password"              -> text.verifying(PasswordError, validPassword _),
-      "password_confirmation" -> text.verifying(PasswordError, validPassword _),
+      "username"              -> nonEmptyText(minLength=MinUsernameLength),
+      "password"              -> optional(text.verifying(PasswordError,
+                                                         validPassword _)),
+      "password_confirmation" -> optional(text.verifying(PasswordError,
+                                                         validPassword _)),
       "first_name"            -> optional(text),
       "last_name"             -> optional(text),
       "email"                 -> optional(text),
       "isAdmin"               -> boolean
     )
-    (applyForCreate)
-    (unapplyForCreate)
+    (UIUser.apply)
+    (UIUser.unapply)
     verifying("Passwords don't match.", passwordsMatch _)
+    verifying("Password is required.", _.password.getOrElse("").length > 0)
   )
 
   /** Display the form to edit an existing user.
@@ -172,6 +179,7 @@ object UserController extends Controller with Secured with ControllerUtil {
     */
   def create = {
     ActionWithAdminUser(parse.urlFormEncoded) { currentUser => implicit request =>
+
       newUserForm.bindFromRequest.fold (
 
         // Failure. Re-post.
@@ -180,12 +188,12 @@ object UserController extends Controller with Secured with ControllerUtil {
           BadRequest(views.html.users.makeNew(currentUser, form))
         },
 
-        { user =>
+        { uiUser =>
 
-          User.create(user).fold(
+          User.create(uiUser.toUser).fold(
             { error =>
 
-              val filledForm = newUserForm.fill(user)
+              val filledForm = newUserForm.fill(uiUser)
               val flash = Flash(Map("error" -> error))
               Ok(views.html.users.makeNew(currentUser, filledForm)(flash))
             },
@@ -226,57 +234,6 @@ object UserController extends Controller with Secured with ControllerUtil {
   // Private methods
   // ----------------------------------------------------------------------
 
-  private def applyForCreate(name:                 String,
-                             password:             String,
-                             passwordConfirmation: String,
-                             firstName:            Option[String],
-                             lastName:             Option[String],
-                             email:                Option[String],
-                             isAdmin:              Boolean) =
-    User(name,
-         User.encrypt(password),
-         Some(password),
-         Some(passwordConfirmation),
-         firstName,
-         lastName,
-         email,
-         isAdmin)
-
-  private def unapplyForCreate(user: User) =
-    Some((user.username, 
-          user.password.getOrElse(""),
-          user.passwordConfirmation.getOrElse(""),
-          user.firstName,
-          user.lastName,
-          user.email,
-          user.isAdmin))
-
-  private def applyForEdit(name:                 String,
-                           password:             Option[String],
-                           passwordConfirmation: Option[String],
-                           firstName:            Option[String],
-                           lastName:             Option[String],
-                           email:                Option[String],
-                           isAdmin:              Boolean) = {
-    User(name,
-         password.map {pw => User.encrypt(pw)}.getOrElse(""),
-         password,
-         passwordConfirmation,
-         firstName,
-         lastName,
-         email,
-         isAdmin)
-  }
-
-  private def unapplyForEdit(user: User) =
-    Some((user.username, 
-          user.password,
-          user.passwordConfirmation,
-          user.firstName,
-          user.lastName,
-          user.email,
-          user.isAdmin))
-
   private def userJson(users: Seq[User], errorMessage: Option[String] = None) = {
     val usersMap = Json.toJson(users.map {_.toJson})
     Json.stringify(
@@ -297,7 +254,7 @@ object UserController extends Controller with Secured with ControllerUtil {
     }.getOrElse(false)
   }
 
-  private def passwordsMatch(user: User) = {
+  private def passwordsMatch(user: UIUser) = {
     user.password.getOrElse("") == user.passwordConfirmation.getOrElse("")
   }
 
@@ -306,5 +263,30 @@ object UserController extends Controller with Secured with ControllerUtil {
       error => true,
       user  => false
     )
+  }
+}
+
+/** This version of the User class exists solely to communicate with the
+  * UI. It contains unencrypted passwords (which should not be persisted)
+  * but it lacks an encrypted password and an ID. It's mapped to and from
+  * the User model, when interacting with the database. But it's here,
+  * rather than in models, because it's not a model; it's simply a UI 
+  * artifact.
+  */
+sealed case class UIUser(username:             String,
+                         password:             Option[String],
+                         passwordConfirmation: Option[String],
+                         firstName:            Option[String],
+                         lastName:             Option[String],
+                         email:                Option[String],
+                         isAdmin:              Boolean) {
+  def this(user: User) = {
+    this(user.username, None, None, user.firstName, user.lastName,
+         user.email, user.isAdmin)
+  }
+
+  def toUser = {
+    User(username, User.encrypt(password.getOrElse("")), firstName, lastName,
+         email, isAdmin)
   }
 }

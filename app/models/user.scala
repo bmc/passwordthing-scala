@@ -4,19 +4,13 @@ import play.api.libs.Crypto
 import play.api.Logger
 import play.api.libs.json._
 
-case class User(username:             String,
-                encryptedPassword:    String,
-                password:             Option[String], // Not persisted
-                passwordConfirmation: Option[String], // Not persisted
-                firstName:            Option[String],
-                lastName:             Option[String],
-                email:                Option[String],
-                isAdmin:              Boolean,
-                id:                   Option[Long] = None) {
-
-  // Helpful for creation
-  def this(username: String, password: String, isAdmin: Boolean) =
-    this(username, "", Some(password), Some(password), None, None, None, isAdmin)
+case class User(username:          String,
+                encryptedPassword: String,
+                firstName:         Option[String],
+                lastName:          Option[String],
+                email:             Option[String],
+                isAdmin:           Boolean,
+                id:                Option[Long] = None) {
 
   /** Get the friendliest possible name for this user, for display purposes.
     */
@@ -113,7 +107,7 @@ object User {
            |VALUES({name}, {pw}, {first_name}, {last_name}, {email},
            |{admin})""".stripMargin).
         on("name"       -> user.username,
-           "pw"         -> encrypt(user.password.getOrElse("")),
+           "pw"         -> user.encryptedPassword,
            "first_name" -> user.firstName,
            "last_name"  -> user.lastName,
            "email"      -> user.email,
@@ -130,39 +124,19 @@ object User {
   }
 
   def update(user: User): Either[String, Boolean] = {
-    // flatMap() unpacks an Option, but expects one back. Thus, it's a
-    // simple way to conditionally convert a Some("") into a None.
-    val sql = user.password.flatMap { pw =>
-      if (pw == "") None else Some(pw)
-    }.map { pw =>
-      // Within this block, we know we actually have a password.
-      SQL("""|UPDATE appusers
+    val sql = SQL("""|UPDATE appusers
              |SET username = {name}, encrypted_password = {pw},
              |first_name = {first_name}, last_name = {last_name},
-             |email = {email}, |is_admin = {admin}
+             |email = {email}, is_admin = {admin}
              |WHERE id = {id}""".stripMargin).
       on("name"       -> user.username,
-         "pw"         -> encrypt(pw),
+         "pw"         -> user.encryptedPassword,
          "first_name" -> user.firstName,
          "last_name"  -> user.lastName,
          "email"      -> user.email,
          "admin"      -> encodeBoolean(user.isAdmin),
          "id"         -> user.id.get
       )
-    }.getOrElse(
-      // Within this block, we know we don't.
-      SQL("""|UPDATE appusers
-             |SET username = {name}, first_name = {fname}, last_name = {lname},
-             |email = {email}, is_admin = {admin}
-             |WHERE id = {id}""".stripMargin).
-      on("name"   -> user.username,
-         "admin"  -> encodeBoolean(user.isAdmin),
-         "fname"  -> user.firstName,
-         "lname"  -> user.lastName,
-         "email"  -> user.email,
-         "id"     -> user.id.get
-      )
-    )
 
     withDBConnection { implicit connection =>
       sql.executeUpdate()
@@ -188,8 +162,6 @@ object User {
   private def decodeUser(row: Row): User = {
     User(row[String]("username"),
          row[String]("encrypted_password"),
-         None,
-         None,
          row[Option[String]]("first_name"),
          row[Option[String]]("last_name"),
          row[Option[String]]("email"),
