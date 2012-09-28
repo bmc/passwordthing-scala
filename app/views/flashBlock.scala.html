@@ -1,0 +1,26 @@
+@(flash: Flash)
+
+<div id="flash">
+  @Seq("info", 
+       "info-autoclose",
+       "error").zipWithIndex.map { case (t, i) =>
+    @flash.data.get(t).map { message =>
+      @defining(t.split("-")) { ts =>
+        @defining(if(ts.last == "autoclose") "autoclose" else "") { ac =>
+          <div class="alert alert-@t.split("-").head @ac">
+            <a class="close" data-dismiss="alert">x</a>
+            @message
+          </div>
+        }
+      }
+    }.getOrElse("")
+  }
+</div>
+
+@* Used by window.flash() in util.coffee *@
+<div id="flash-template" style="display:none">
+  <div class="alert">
+    <a class="close" data-dismiss="alert">x</a>
+    <span class="flash-message"></span>
+  </div>
+</div>

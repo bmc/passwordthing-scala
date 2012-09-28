@@ -60,7 +60,7 @@ object Auth extends Controller {
 
         Redirect(routes.Application.index()).
           withSession("username" -> user.username).
-          flashing("info" -> ("Welcome back, " + fullUser.displayName))
+          flashing("info-autoclose" -> ("Welcome back, " + fullUser.displayName))
       }
     )
   }
