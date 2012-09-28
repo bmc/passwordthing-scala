@@ -5,7 +5,7 @@
 # ---------------------------------------------------------------------------
 # Home page
 
-GET     /                      controllers.SiteController.index
+GET     /                      controllers.Application.index
 
 # ---------------------------------------------------------------------------
 # Login routes
